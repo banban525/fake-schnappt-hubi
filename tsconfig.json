@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/js/",
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5",
+    "module": "es6",
+    "jsx": "react"
+  },
+  "file": [
+    "./src_js/Index.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
