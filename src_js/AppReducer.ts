@@ -113,7 +113,7 @@ export interface NextTo
     right:number;
 }
 
-function createNewMap() : Map
+export function createNewMap() : Map
 {
     var result: Map = {
         Aisles:[],
@@ -173,8 +173,8 @@ function createNewMap() : Map
     {
         for(var $x = 0; $x < 3; $x++)
         {
-            var $aisleX = $x * 2 + 1;
-            var $aisleY = $y * 2 + 2;
+            var $aisleX = $x * 2 + 2;
+            var $aisleY = $y * 2 + 1;
             var aisleNoText = tempMap[$aisleY][$aisleX].replace("A", "");
             var aisleNo  = parseInt(aisleNoText);
             var upTile    = parseInt(tempMap[$aisleY - 1][$aisleX + 0].replace("T",""))
@@ -199,8 +199,8 @@ function createNewMap() : Map
     {
         for(var $x = 0; $x < 4; $x++)
         {
-            var $aisleX = $x * 2 + 2;
-            var $aisleY = $y * 2 + 1;
+            var $aisleX = $x * 2 + 1;
+            var $aisleY = $y * 2 + 2;
             var aisleNoText = tempMap[$aisleY][$aisleX].replace("A", "");
             var aisleNo  = parseInt(aisleNoText);
             var upTile    = parseInt(tempMap[$aisleY - 1][$aisleX + 0].replace("T",""))

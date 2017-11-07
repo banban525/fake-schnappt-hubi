@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack                    --colors --config ./webpack.config.js     --display-error-details",
     "watch": "webpack --watch --progress --colors --config ./webpack.config.dev.js --display-error-details",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "karma start --single-run"
   },
   "author": "",
   "license": "ISC",
@@ -29,10 +29,16 @@
     "@types/material-ui": "^0.18.3",
     "@types/react": "^16.0.13",
     "@types/react-dom": "^16.0.1",
-    "@types/react-tap-event-plugin": "2.0.1",
+    "@types/react-redux": "^5.0.12",
+    "@types/react-tap-event-plugin": "0.0.30",
+    "@types/redux": "^3.6.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-sourcemap-loader": "^0.3.7",
     "material-ui": "^0.19.4",
     "react": "15.6.1",
     "react-dom": "15.6.1",
-    "react-tap-event-plugin": "2.0.1"
+    "react-redux": "^5.0.6",
+    "react-tap-event-plugin": "2.0.1",
+    "redux": "^3.7.2"
   }
 }
