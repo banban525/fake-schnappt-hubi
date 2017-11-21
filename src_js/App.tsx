@@ -18,6 +18,7 @@ import HelpIcon from 'material-ui/svg-icons/action/help';
 import IconButton from 'material-ui/IconButton';
 import SvgIcon from 'material-ui/SvgIcon';
 
+import {AppActionDispatcher, AppState,Aisle,AisleTypes,Player,PlayerType,AisleState,MessageIcons} from './AppReducer';
 
 // Needed for onTouchTap 
 // http://stackoverflow.com/a/34015469/988941 
@@ -25,18 +26,140 @@ injectTapEventPlugin();
 
 
 
-
-interface IAppState {
-  
+export interface AppProps extends AppState
+{
+  actions?:AppActionDispatcher;
+//   children?:JSX.Element;
+//   history?:H.History;
 }
 
-class App extends Component<{}, IAppState> {
+class App extends Component<AppProps> {
   constructor(props: any) {
     super(props);
-
   }
 
-  render() {
+  getAisleColor(aisle:AisleState):string
+  {
+    if(aisle.shown===false)
+    {
+        return "pink";
+    }
+    switch(aisle.type)
+    {
+    case AisleTypes.FreePassage:
+        return "white";
+    case AisleTypes.MouseHole:
+        return "gray";
+    case AisleTypes.RabbitWindow:
+        return "green";
+    case AisleTypes.Wall:
+        return "black"
+    case AisleTypes.MagicDoor1:
+        return "purple";
+    case AisleTypes.MagicDoor2:
+        return "purple";
+    case AisleTypes.MagicDoor3:
+        return "purple";
+    case AisleTypes.MagicDoorOpened:
+        return "white";
+    }
+  }
+  getHubiPositionX(position:number):number
+  {
+    if(position === -1)
+    {
+        return -200;
+    }
+    var result = (position % 4) * 100;    
+    result += 20;
+    return result;
+  }
+  getHubiPositionY(position:number):number
+  {
+    if(position === -1)
+    {
+        return -200;
+    }
+    var result = Math.floor(position / 4) * 100; 
+    result += 20;
+    return result;
+  }
+  getPlayerPositionX(player:Player):number
+  {
+    var result = (player.position % 4) * 100;    
+    if(player.playerType === PlayerType.BlueRabbit || player.playerType === PlayerType.GreenRabbit)
+    {
+        result += 10;
+    }
+    else
+    {
+        result += 60;
+    }
+    return result;
+  }
+  getPlayerPositionY(player:Player):number
+  {
+    var result = Math.floor(player.position / 4) * 100;
+    if(player.playerType === PlayerType.GreenRabbit || player.playerType === PlayerType.RedMouse)
+    {
+        result += 10;
+    }
+    else
+    {
+        result += 60;
+    }
+    return result;
+  }
+    getPlayerColor(player:Player):string{
+        switch(player.playerType)
+        {
+        case PlayerType.BlueRabbit:
+            return "blue";
+        case PlayerType.RedMouse:
+            return "red";
+        case PlayerType.GreenRabbit:
+            return "green";
+        case PlayerType.YellowMouse:
+            return "yellow";
+        }
+        return "";
+    }
+
+    getPlayerShape(player:Player):string{
+        switch(player.playerType)
+        {
+        case PlayerType.BlueRabbit:
+            return "#rabbit";
+        case PlayerType.RedMouse:
+            return "#mouse";
+        case PlayerType.GreenRabbit:
+            return "#rabbit";
+        case PlayerType.YellowMouse:
+            return "#mouse";
+        }
+        return "";
+    }
+
+    isPlayer(playerType:PlayerType):boolean{
+        var matchedPlayer = this.props.players.filter(player=>player.playerType === playerType);
+        if(matchedPlayer.length !== 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    isNextPlayer(playerType:PlayerType):boolean{
+        return this.props.players[0].playerType === playerType;
+    }
+    getMessageAvatar(messageIcon: MessageIcons):React.ReactElement<any>
+    {
+        if(messageIcon == MessageIcons.WhiteOwl)
+        {
+            return <svg/>
+        }
+        return <div></div>
+    }
+    render() {
     return (
       <MuiThemeProvider muiTheme={getMuiTheme()}>
         <div>
@@ -44,96 +167,57 @@ class App extends Component<{}, IAppState> {
                 title="Snap Hibi"
                 iconClassNameRight="muidocs-icon-navigation-expand-more"
             />
-            <Paper width="100%" zDepth={1}>
-            <table id="control">
-                <tbody>
-                <tr>
-                    <td></td>
-                    <td><RaisedButton style={{height:88}} icon={<UpArrow/>} primary={true}/></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><RaisedButton style={{height:88}} icon={<LeftArrow/>} primary={true}/></td>
-                    <td><RaisedButton style={{height:88}} icon={<HelpIcon/>} secondary={true}/></td>
-                    <td><RaisedButton style={{height:88}} icon={<RightArrow/>} primary={true}/></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><RaisedButton style={{height:88}} icon={<DownArrow/>} primary={true}/></td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-            </Paper>
-            <Paper width="100%" zDepth={1}>
-                <List>
-                    <ListItem
-                        disabled={true}
-                        leftAvatar={<Avatar  icon={
-                            <SvgIcon >
-                                <path id="_x30_88_x2017_動物08" fill="#389339" stroke="#44B035" d="M19.588,18.236c-0.968-2.17-7.616-7.753-8.545-8.566	c-0.93-0.815-1.346-0.465-1.307-1.008C9.774,8.12,9.299,6.725,9.299,6.725s0.464-0.619,1.24-1.355	c0.774-0.736,0.813-3.798,0.31-4.107c-0.504-0.311-1.511,1.124-1.511,1.124s0-0.774-0.155-1.085	c-0.155-0.31-0.426-0.504-1.163,0.464C7.513,2.434,7.448,4.271,7.456,4.77C7.458,4.913,7.32,5.017,7.187,4.966	c-0.604-0.235-1.668-0.16-2.188,0.131C3.828,5.757,2.921,6.77,2.868,7.46C2.751,8.972,5.192,9.845,5.192,9.845l0.155,0.366	c0,0-0.232,1.047-0.31,2.325c-0.078,1.278,1.218,2.93,0.947,3.125c-0.271,0.193-0.56,0.784-1.024,1.365	c-0.465,0.582-0.349,2.325-0.271,2.596c0.077,0.271,0.31-0.271,0.155,0.465c-0.155,0.736,0.813,0.039,1.162-0.117	c0.349-0.156,0.504-0.736,0.504-1.356c0-0.619,0.852-1.395,0.852-1.395s0.813,0.586,0.969,0.856	c0.155,0.272,1.279,2.094,1.279,2.094s0.038,1.277,0.581,2.363c0.103,0.207,0.23,0.36,0.368,0.473	c-0.146-0.004-0.306-0.008-0.484-0.008c-1.55,0-2.192,0.388-2.54,0.62c-0.349,0.233-0.388,0.891-0.194,1.046	c0.194,0.155,0.582,0.039,0.349,0.271c-0.232,0.233-0.017,0.388,1.456,0.504c1.472,0.117,5.462-0.039,5.85-0.231	c0.387-0.194-0.349-0.775-0.155-0.853c0.193-0.078,1.279,0.115,1.55,0.115c0.271,0,1.822-0.113,2.471-0.579	C19.477,23.449,20.557,20.406,19.588,18.236z"/>
-                            </SvgIcon>
-                        } />}>
-                        うさぎようのまどだったよ
-                    </ListItem>
-                    <ListItem
-                        disabled={true}
-                        leftAvatar={<Avatar  icon={<GamesIcon/>} />}>
-                        みどりうさぎさんのばんだよ
-                    </ListItem>
-                </List>
-            </Paper>
-            
-            <div id="log">
-            </div>
+
+            <div style={{float:"right",width:"400px"}}>
+            <p>{this.props.operations.length}/{30}</p>
             <svg width="400px" height="400px">
-                <polygon points="0,0 0,400 400,400 400,0 0,0 10,10 90,10 90,30 110,30 110,10 190,10 190,30 210,30 210,10 290,10 290,30 310,30 310,10  390,10 390,90 370,90 370,110 390,110 390,190 370,190 370,210 390,210 390,290 370,290 370,310 390,310 390,390  310,390 310,370 290,370 290,390 210,390 210,370 190,370 190,390 110,390 110,370 90,370 90,390  10,390 10,310 30,310 30,290 10,290 10,290 10,210 30,210 30,190 10,190 10,110 30,110 30,90 10,90    10,10 0,0" stroke="black" stroke-width="1" fill="saddlebrown" />    
-                <polygon points=" 90, 90  90, 70 110, 70 110, 90 130, 90 130,110 110,110 110,130  90,130  90,110  70,110  70, 90  90, 90" stroke="black" stroke-width="1" fill="saddlebrown" />    
-                <polygon points="190, 90 190, 70 210, 70 210, 90 230, 90 230,110 210,110 210,130 190,130 190,110 170,110 170, 90 190, 90" stroke="black" stroke-width="1" fill="saddlebrown" />    
-                <polygon points="290, 90 290, 70 310, 70 310, 90 330, 90 330,110 310,110 310,130 290,130 290,110 270,110 270, 90 290, 90" stroke="black" stroke-width="1" fill="saddlebrown" />    
+                <polygon points="0,0 0,400 400,400 400,0 0,0 10,10 90,10 90,30 110,30 110,10 190,10 190,30 210,30 210,10 290,10 290,30 310,30 310,10  390,10 390,90 370,90 370,110 390,110 390,190 370,190 370,210 390,210 390,290 370,290 370,310 390,310 390,390  310,390 310,370 290,370 290,390 210,390 210,370 190,370 190,390 110,390 110,370 90,370 90,390  10,390 10,310 30,310 30,290 10,290 10,290 10,210 30,210 30,190 10,190 10,110 30,110 30,90 10,90    10,10 0,0" stroke="black" strokeWidth="1" fill="saddlebrown" />    
+                <polygon points=" 90, 90  90, 70 110, 70 110, 90 130, 90 130,110 110,110 110,130  90,130  90,110  70,110  70, 90  90, 90" stroke="black" strokeWidth="1" fill="saddlebrown" />    
+                <polygon points="190, 90 190, 70 210, 70 210, 90 230, 90 230,110 210,110 210,130 190,130 190,110 170,110 170, 90 190, 90" stroke="black" strokeWidth="1" fill="saddlebrown" />    
+                <polygon points="290, 90 290, 70 310, 70 310, 90 330, 90 330,110 310,110 310,130 290,130 290,110 270,110 270, 90 290, 90" stroke="black" strokeWidth="1" fill="saddlebrown" />    
 
-                <polygon points=" 90,190  90,170 110,170 110,190 130,190 130,210 110,210 110,230  90,230  90,210  70,210  70,190  90,190" stroke="black" stroke-width="1" fill="saddlebrown" />    
-                <polygon points="190,190 190,170 210,170 210,190 230,190 230,210 210,210 210,230 190,230 190,210 170,210 170,190 190,190" stroke="black" stroke-width="1" fill="saddlebrown" />    
-                <polygon points="290,190 290,170 310,170 310,190 330,190 330,210 310,210 310,230 290,230 290,210 270,210 270,190 290,190" stroke="black" stroke-width="1" fill="saddlebrown" />    
+                <polygon points=" 90,190  90,170 110,170 110,190 130,190 130,210 110,210 110,230  90,230  90,210  70,210  70,190  90,190" stroke="black" strokeWidth="1" fill="saddlebrown" />    
+                <polygon points="190,190 190,170 210,170 210,190 230,190 230,210 210,210 210,230 190,230 190,210 170,210 170,190 190,190" stroke="black" strokeWidth="1" fill="saddlebrown" />    
+                <polygon points="290,190 290,170 310,170 310,190 330,190 330,210 310,210 310,230 290,230 290,210 270,210 270,190 290,190" stroke="black" strokeWidth="1" fill="saddlebrown" />    
 
-                <polygon points=" 90,290  90,270 110,270 110,290 130,290 130,310 110,310 110,330  90,330  90,310  70,310  70,290  90,290" stroke="black" stroke-width="1" fill="saddlebrown" />    
-                <polygon points="190,290 190,270 210,270 210,290 230,290 230,310 210,310 210,330 190,330 190,310 170,310 170,290 190,290" stroke="black" stroke-width="1" fill="saddlebrown" />    
-                <polygon points="290,290 290,270 310,270 310,290 330,290 330,310 310,310 310,330 290,330 290,310 270,310 270,290 290,290" stroke="black" stroke-width="1" fill="saddlebrown" />    
+                <polygon points=" 90,290  90,270 110,270 110,290 130,290 130,310 110,310 110,330  90,330  90,310  70,310  70,290  90,290" stroke="black" strokeWidth="1" fill="saddlebrown" />    
+                <polygon points="190,290 190,270 210,270 210,290 230,290 230,310 210,310 210,330 190,330 190,310 170,310 170,290 190,290" stroke="black" strokeWidth="1" fill="saddlebrown" />    
+                <polygon points="290,290 290,270 310,270 310,290 330,290 330,310 310,310 310,330 290,330 290,310 270,310 270,290 290,290" stroke="black" strokeWidth="1" fill="saddlebrown" />    
 
-                <rect x=" 90" y=" 30" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
-                <rect x="190" y=" 30" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
-                <rect x="290" y=" 30" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
+                <rect id="aisle_00" x=" 90" y=" 30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[0])} />
+                <rect id="aisle_01" x="190" y=" 30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[1])} />
+                <rect id="aisle_02" x="290" y=" 30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[2])} />
                 
-                <rect x=" 90" y="130" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
-                <rect x="190" y="130" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
-                <rect x="290" y="130" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
+                <rect id="aisle_03" x=" 90" y="130" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[3])} />
+                <rect id="aisle_04" x="190" y="130" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[4])} />
+                <rect id="aisle_05" x="290" y="130" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[5])} />
                 
-                <rect x=" 90" y="230" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
-                <rect x="190" y="230" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
-                <rect x="290" y="230" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
+                <rect id="aisle_06" x=" 90" y="230" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[6])} />
+                <rect id="aisle_07" x="190" y="230" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[7])} />
+                <rect id="aisle_08" x="290" y="230" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[8])} />
                 
-                <rect x=" 90" y="330" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
-                <rect x="190" y="330" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
-                <rect x="290" y="330" width="20" height="40" stroke="black" stroke-width="1" fill="none" />
+                <rect id="aisle_09" x=" 90" y="330" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[9])} />
+                <rect id="aisle_10" x="190" y="330" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[10])} />
+                <rect id="aisle_11" x="290" y="330" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[11])} />
 
                 
-                <rect x=" 30" y=" 90" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="130" y=" 90" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="230" y=" 90" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="330" y=" 90" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
+                <rect id="aisle_12" x=" 30" y=" 90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[12])} />
+                <rect id="aisle_13" x="130" y=" 90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[13])} />
+                <rect id="aisle_14" x="230" y=" 90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[14])} />
+                <rect id="aisle_15" x="330" y=" 90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[15])} />
 
-                <rect x=" 30" y="190" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="130" y="190" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="230" y="190" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="330" y="190" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
+                <rect id="aisle_16" x=" 30" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[16])} />
+                <rect id="aisle_17" x="130" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[17])} />
+                <rect id="aisle_18" x="230" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[18])} />
+                <rect id="aisle_19" x="330" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[19])} />
 
-                <rect x=" 30" y="290" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="130" y="290" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="230" y="290" width="40" height="20" stroke="black" stroke-width="1" fill="none" />
-                <rect x="330" y="290" width="40" height="20" stroke="transparent" stroke-width="1" fill="none" />
+                <rect id="aisle_20" x=" 30" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[20])} />
+                <rect id="aisle_21" x="130" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[21])} />
+                <rect id="aisle_22" x="230" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[22])} />
+                <rect id="aisle_23" x="330" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[23])} />
                 
                 <defs>
-                    <svg id="bat_tile" width="80" height="80" viewBox="0 0 623.626 623.626" overflow="visible" enable-background="new 0 0 623.626 623.626">
+                    <svg id="bat_tile" width="80" height="80" viewBox="0 0 623.626 623.626" overflow="visible" enableBackground="new 0 0 623.626 623.626">
                         <path  d={"M449.638,194.41c-13.229,45.682-57.704,74.534-82.957,74.534c-6.012-24.046-13.221-49.318-27.656-68.522 " +
                         "l-10.816,22.841l-41.388-1.318l-10.817-22.822c-14.426,19.222-21.644,44.457-27.646,68.523c-25.253,0-69.738-28.853-82.968-74.553 " +
                         "c-46.888,24.028-109.398,87.782-120.225,212.823c35.263-37.611,115.419-22.861,134.651-4.807 " +
@@ -145,7 +229,7 @@ class App extends Component<{}, IAppState> {
                         "C290.439,260.799,287.201,264.027,283.221,264.027z M331.815,264.027c-3.979,0-7.217-3.228-7.217-7.217 "+
                         "c0-3.971,3.238-7.181,7.217-7.181c3.98,0,7.209,3.21,7.209,7.181C339.024,260.799,335.796,264.027,331.815,264.027z"}/>
                     </svg>
-                    <svg id="owl_tile" width="80" height="80" viewBox="0 0 623.626 623.626" overflow="visible" enable-background="new 0 0 623.626 623.626">
+                    <svg id="owl_tile" width="80" height="80" viewBox="0 0 623.626 623.626" overflow="visible" enableBackground="new 0 0 623.626 623.626">
                         <g>
                             <path d={"M259.543,202.19c-3.994,0-7.764,0.821-11.24,2.217c2.256,2.158,3.74,5.166,3.74,8.54c0,6.529-5.313,11.817-11.836,11.817 "+
                                 "c-3.369,0-6.396-1.446-8.525-3.711c-1.407,3.476-2.227,7.251-2.227,11.235c0,16.616,13.485,30.093,30.088,30.093 "+
@@ -176,7 +260,7 @@ class App extends Component<{}, IAppState> {
                         </g>
                     </svg>
                     <svg  id="toad_tile" width="80" height="80"
-                    viewBox="0 0 623.626 623.626" overflow="visible" enable-background="new 0 0 623.626 623.626" xmlSpace="preserve">
+                    viewBox="0 0 623.626 623.626" overflow="visible" enableBackground="new 0 0 623.626 623.626" xmlSpace="preserve">
                         <g>
                             <path d={"M215.513,180.555c12.314,0,22.294-9.976,22.294-22.29c0-12.311-9.98-22.29-22.294-22.29c-3.008,0-5.85,0.61-8.467,1.684 " +
                                 "c2.334,1.607,3.965,4.165,3.965,7.212c0,4.917-3.985,8.897-8.887,8.897c-3.047,0-5.615-1.631-7.207-3.97 " +
@@ -206,7 +290,7 @@ class App extends Component<{}, IAppState> {
                         </g>
                     </svg>
                     <svg id="centipede_tile" width="80" height="80"
-                    viewBox="0 0 623.626 623.626" overflow="visible" enable-background="new 0 0 623.626 623.626" xmlSpace="preserve">
+                    viewBox="0 0 623.626 623.626" overflow="visible" enableBackground="new 0 0 623.626 623.626" xmlSpace="preserve">
                         <path d={"M492.145,323.331c0-25.246-13.251-48.011-34.753-60.732c2.939-7.768,4.615-16.146,4.615-24.931 " +
                             "c0-39.014-31.737-70.757-70.744-70.757c-9.23,0-18.176,1.947-26.581,5.37c-11.91-22.353-35.424-37.622-62.468-37.622 " +
                             "c-26.786,0-50.298,14.92-62.313,37.653c-8.353-3.467-17.479-5.401-27.044-5.401c-39.007,0-70.769,31.743-70.769,70.757 " +
@@ -239,7 +323,7 @@ class App extends Component<{}, IAppState> {
                             />
                     </svg>
                     <svg id="mouse" width="30" height="30"
-                    viewBox="0 0 623.626 623.626" overflow="visible" enable-background="new 0 0 623.626 623.626" xmlSpace="preserve">
+                    viewBox="0 0 623.626 623.626" overflow="visible" enableBackground="new 0 0 623.626 623.626" xmlSpace="preserve">
                     <path d={"M559.64,463.533c-28.116-1.012-59.773-11.105-78.993-18.276c10.382-24.632,11.741-53.354,2.854-79.294 " +
                         "c-17.946-52.324-40.208-117.043-217.957-120.763c20.531-12.366,40.704-29.103,44.624-48.771 " +
                         "c2.922-14.649-3.015-28.713-17.655-41.804c-12.046-10.779-27.674-13.693-45.171-8.349c-26.653,8.08-53.749,34.048-69.687,64.44 " +
@@ -261,7 +345,7 @@ class App extends Component<{}, IAppState> {
                         "C125.358,335.515,127.914,333.808,130.539,334.336z"}/>
                     </svg>
                     <svg id="rabbit" width="30" height="30"
-                    viewBox="0 0 623.626 623.626" overflow="visible" enable-background="new 0 0 623.626 623.626" xmlSpace="preserve">
+                    viewBox="0 0 623.626 623.626" overflow="visible" enableBackground="new 0 0 623.626 623.626" xmlSpace="preserve">
                     <path d={"M294.045,590.53l10.8-18.801V554.03c-10.599-2.9-18.599-14.301-18.599-21.9c0-8.9,10.6-4,23.599-4 " +
                         "c13.101,0,23.701-4.9,23.701,4c0,7.6-8,19-18.701,21.9v17.699l11.001,19.101c123.4-3.2,185.599-53.5,184.9-149.899 " +
                         "c-0.301-45.301-14.7-86.5-41.899-119.601c16.298-47.3,21.799-134.7,24.699-207.1c0.398-7.9,0.6-13.6,0.8-16.4 " +
@@ -274,7 +358,7 @@ class App extends Component<{}, IAppState> {
                         "c-6.4,0-11.6-12.399-11.6-27.7C194.246,463.83,199.446,451.53,205.846,451.53z"}/>
                     </svg>
                     <svg id="ghost" width="60" height="60"
-                    viewBox="0 0 623.626 623.626" overflow="visible" enable-background="new 0 0 623.626 623.626" xmlSpace="preserve">
+                    viewBox="0 0 623.626 623.626" overflow="visible" enableBackground="new 0 0 623.626 623.626" xmlSpace="preserve">
                         <g>
                             <path d={"M336.275,212.497c7.363,0,13.34-5.976,13.34-13.34c0-7.363-5.977-13.34-13.34-13.34s-13.34,5.977-13.34,13.34 " +
                                 "C322.935,206.521,328.912,212.497,336.275,212.497z"}/>
@@ -309,22 +393,22 @@ class App extends Component<{}, IAppState> {
                 </defs>
 
 
-                <rect x=" 10" y=" 10" width="80" height="80" fill="gray"/>
-                <rect x="110" y=" 10" width="80" height="80" fill="gray"/>
-                <rect x="210" y=" 10" width="80" height="80" fill="gray"/>
-                <rect x="310" y=" 10" width="80" height="80" fill="gray"/>
-                <rect x=" 10" y="110" width="80" height="80" fill="gray"/>
-                <rect x="110" y="110" width="80" height="80" fill="gray"/>
-                <rect x="210" y="110" width="80" height="80" fill="gray"/>
-                <rect x="310" y="110" width="80" height="80" fill="gray"/>
-                <rect x=" 10" y="210" width="80" height="80" fill="gray"/>
-                <rect x="110" y="210" width="80" height="80" fill="gray"/>
-                <rect x="210" y="210" width="80" height="80" fill="gray"/>
-                <rect x="310" y="210" width="80" height="80" fill="gray"/>
-                <rect x=" 10" y="310" width="80" height="80" fill="gray"/>
-                <rect x="110" y="310" width="80" height="80" fill="gray"/>
-                <rect x="210" y="310" width="80" height="80" fill="gray"/>
-                <rect x="310" y="310" width="80" height="80" fill="gray"/>
+                <rect id="tile_00" x=" 10" y=" 10" width="80" height="80" fill="gray"/>
+                <rect id="tile_01" x="110" y=" 10" width="80" height="80" fill="gray"/>
+                <rect id="tile_02" x="210" y=" 10" width="80" height="80" fill="gray"/>
+                <rect id="tile_03" x="310" y=" 10" width="80" height="80" fill="gray"/>
+                <rect id="tile_04" x=" 10" y="110" width="80" height="80" fill="gray"/>
+                <rect id="tile_05" x="110" y="110" width="80" height="80" fill="gray"/>
+                <rect id="tile_06" x="210" y="110" width="80" height="80" fill="gray"/>
+                <rect id="tile_07" x="310" y="110" width="80" height="80" fill="gray"/>
+                <rect id="tile_08" x=" 10" y="210" width="80" height="80" fill="gray"/>
+                <rect id="tile_09" x="110" y="210" width="80" height="80" fill="gray"/>
+                <rect id="tile_10" x="210" y="210" width="80" height="80" fill="gray"/>
+                <rect id="tile_11" x="310" y="210" width="80" height="80" fill="gray"/>
+                <rect id="tile_12" x=" 10" y="310" width="80" height="80" fill="gray"/>
+                <rect id="tile_13" x="110" y="310" width="80" height="80" fill="gray"/>
+                <rect id="tile_14" x="210" y="310" width="80" height="80" fill="gray"/>
+                <rect id="tile_15" x="310" y="310" width="80" height="80" fill="gray"/>
 
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x=" 10" y=" 10" fill="white"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x="310" y=" 10" fill="black"/>
@@ -345,15 +429,108 @@ class App extends Component<{}, IAppState> {
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#bat_tile"  x="110" y="210" fill="black"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#bat_tile"  x="210" y="110" fill="black"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#bat_tile"  x="210" y="210" fill="white"/>
-    
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#rabbit"  x=" 10" y=" 10" fill="green"/>
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#mouse"   x="360" y=" 10" fill="red"/>
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#mouse"   x="360" y="360" fill="yellow"/>
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#rabbit"  x=" 10" y="360" fill="blue"/>
-
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#ghost"   x="120" y="120" fill="black"/>
+                {this.props.players.map(player=>{
+                    return (
+                        <use key={"ply:"+player.playerType} xmlnsXlink="http://www.w3.org/1999/xlink" 
+                            xlinkHref={this.getPlayerShape(player)}  
+                            x={this.getPlayerPositionX(player)} 
+                            y={this.getPlayerPositionY(player)} 
+                            fill={this.getPlayerColor(player)}/>
+                    );
+                })}
+                    
+                <use xmlnsXlink="http://www.w3.org/1999/xlink"
+                    xlinkHref="#ghost"
+                    x={this.getHubiPositionX(this.props.hubiPosition)} 
+                    y={this.getHubiPositionY(this.props.hubiPosition)} 
+                    fill="black"/>
 
             </svg>
+            <p style={{color:"gray"}}>■ネズミあな</p>
+            <p style={{color:"white", backgroundColor:"gray"}}>■かべなし</p>
+            <p style={{color:"green"}}>■ウサギまど</p>
+            <p style={{color:"purple"}}>■まほうのとびら</p>
+            <p style={{color:"black"}}>■カベ</p>
+            <button onClick={()=>this.props.actions.onTest()}>Test</button>
+            </div>
+            <Paper style={{width:"300px"}} zDepth={1}>
+            <table id="control">
+                <tbody>
+                <tr>
+                    <td>
+                        <svg width="88px" height="88px">
+                            <use 
+                                xmlnsXlink="http://www.w3.org/1999/xlink" 
+                                xlinkHref="#rabbit" 
+                                x="22" 
+                                y="22" 
+                                width="44" 
+                                height="44" 
+                                fill={this.isNextPlayer(PlayerType.GreenRabbit)?"green":"gray"}
+                                visibility={this.isPlayer(PlayerType.GreenRabbit)?"visible":"hidden"} />
+                        </svg>
+                    </td>
+                    <td><RaisedButton style={{height:88}} icon={<UpArrow/>} primary={true} onClick={()=>this.props.actions.onMoveUp()}/></td>
+                    <td>
+                        <svg width="88px" height="88px">
+                            <use 
+                                xmlnsXlink="http://www.w3.org/1999/xlink" 
+                                xlinkHref="#mouse" 
+                                x="22" 
+                                y="22" 
+                                width="44" 
+                                height="44" 
+                                fill={this.isNextPlayer(PlayerType.RedMouse)?"red":"gray"}
+                                visibility={this.isPlayer(PlayerType.RedMouse)?"visible":"hidden"}/>
+                        </svg>
+                    </td>
+                    </tr>
+                <tr>
+                    <td><RaisedButton style={{height:88}} icon={<LeftArrow/>} primary={true} onClick={()=>this.props.actions.onMoveLeft()}/></td>
+                    <td><RaisedButton style={{height:88}} icon={<HelpIcon/>} secondary={true} onClick={()=>this.props.actions.onListenHint()}/></td>
+                    <td><RaisedButton style={{height:88}} icon={<RightArrow/>} primary={true} onClick={()=>this.props.actions.onMoveRight()}/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <svg width="88px" height="88px">
+                            <use 
+                                xmlnsXlink="http://www.w3.org/1999/xlink" 
+                                xlinkHref="#rabbit" 
+                                x="22" 
+                                y="22" 
+                                width="44" 
+                                height="44" 
+                                fill={this.isNextPlayer(PlayerType.BlueRabbit)?"blue":"gray"}
+                                visibility={this.isPlayer(PlayerType.BlueRabbit)?"visible":"hidden"}/>
+                        </svg>
+                    </td>
+                    <td><RaisedButton style={{height:88}} icon={<DownArrow/>} primary={true} onClick={()=>this.props.actions.onMoveDown()}/></td>
+                    <td>
+                        <svg width="88px" height="88px">
+                            <use 
+                                xmlnsXlink="http://www.w3.org/1999/xlink" 
+                                xlinkHref="#mouse" 
+                                x="22" 
+                                y="22" 
+                                width="44" 
+                                height="44" 
+                                stroke="black" 
+                                strokeWidth="8" 
+                                fill={this.isNextPlayer(PlayerType.YellowMouse)?"Yellow":"gray"}
+                                visibility={this.isPlayer(PlayerType.YellowMouse)?"visible":"hidden"}/>
+                        </svg>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            </Paper>
+            <Paper style={{width:"300px"}} zDepth={1}>
+                <List style={{height:"200px",overflowY:"scroll"}}>
+                    {this.props.messages.slice().reverse().map(message=>{
+                        return <ListItem key={"msg:"+message.id} disabled={true} leftAvatar={this.getMessageAvatar(message.icon)}>{message.text}</ListItem>
+                    })}
+                </List>
+            </Paper>
         </div>
       </MuiThemeProvider>
     );

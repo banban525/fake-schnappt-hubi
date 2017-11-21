@@ -219,3 +219,4 @@ source/NoahsArkWeb/wwwroot/js/
 
 source/NoahsArkWeb/logs/
 src_cs/SharedAssemblyInfo.cs
+dist/js/bundle.*
