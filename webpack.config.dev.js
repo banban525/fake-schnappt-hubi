@@ -27,7 +27,8 @@ module.exports = {
       { test: /\.woff$/, loader: 'url-loader?mimetype=application/font-woff' },
       { test: /\.woff2$/, loader: 'url-loader?mimetype=application/font-woff' },
       { test: /\.eot$/, loader: 'url-loader?mimetype=application/font-woff' },
-      { test: /\.ttf$/, loader: 'url-loader?mimetype=application/font-woff' }
+      { test: /\.ttf$/, loader: 'url-loader?mimetype=application/font-woff' },
+      { test: /\.mp3$/, loader: 'arraybuffer-loader'}
     ]
   }
 };
