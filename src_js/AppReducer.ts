@@ -14,6 +14,163 @@ export interface AppState
     hubiPosition:number;
 }
 
+export class AppStateController
+{
+    state:AppState;
+
+    constructor(state:AppState)
+    {
+        this.state = state;
+    }
+
+    movePlayer(position:number):AppStateController
+    {
+        var currentPlayer = this.state.players[0];
+        var newPlayer:Player = currentPlayer.createNewPlayer(position);
+        var newPlayers = this.state.players.slice();
+        newPlayers[0] = newPlayer;
+        
+        return new AppStateController(
+            objectAssign({}, this.state, {players:newPlayers}));
+    }
+
+    updateAisleShown(aisleNo:number, shown:boolean):AppStateController
+    {
+        var nextAisle = this.state.aisleStates[aisleNo];
+        var newAisle = nextAisle.changeShown(true);
+        var newAisles = this.state.aisleStates.slice();
+        newAisles[newAisle.index] = newAisle;
+        return new AppStateController(
+            objectAssign({}, this.state, {aisleStates:newAisles}));
+    }
+    updateAisleType(aisleNo:number, newType:AisleTypes):AppStateController
+    {
+        var nextAisle = this.state.aisleStates[aisleNo];
+        var newAisle = nextAisle.changeType(newType);
+        var newAisles = this.state.aisleStates.slice();
+        newAisles[newAisle.index] = newAisle;
+        return new AppStateController(
+            objectAssign({}, this.state, {aisleStates:newAisles}));
+    }
+
+    addMessage(icon:MessageIcons,messageId:MessageId):AppStateController
+    {
+        var newMessages = this.state.messages;
+        newMessages = newMessages.concat({
+            id:newMessages.length, 
+            icon:icon,
+            text:getMessage(messageId)});
+        return new AppStateController(
+            this.state = objectAssign({}, this.state, {messages:newMessages}));
+   }
+
+    turnEnd():AppStateController
+    {
+        var currentPlayer = this.state.players[0];
+        var newPlayers = this.state.players.slice(1).concat(currentPlayer);
+        return new AppStateController(
+            objectAssign({}, this.state, {players:newPlayers}));
+    }
+
+    changeGamePhase(newPhase:GamePhase):AppStateController
+    {
+        return new AppStateController(
+            objectAssign({}, this.state, {phase:newPhase}));
+    }
+
+    getClosedMagicDoors():AisleState[]
+    {
+        var result = this.state.aisleStates.filter(_=>_.isClosedMagicDoor());
+        result.sort((x,y)=>x.type - y.type);
+        return result;
+    }
+
+    getHideMagicDoor():AisleState[]
+    {
+        return this.state.aisleStates.filter(_=>_.shown === false && _.isClosedMagicDoor());
+    }
+
+    getNearTiles(aisleNo:number):Tile[]
+    {
+        var mapMagicDoorAisle = this.state.map.Aisles[aisleNo];
+        if(mapMagicDoorAisle.tiles.up !== -1)
+        {
+            // 上下方向の通路
+            var tiles = [
+                this.state.map.Tiles[mapMagicDoorAisle.tiles.up],
+                this.state.map.Tiles[mapMagicDoorAisle.tiles.down],
+            ];
+        }
+        else
+        {
+            // 左右方向の通路
+            var tiles = [
+                this.state.map.Tiles[mapMagicDoorAisle.tiles.left],
+                this.state.map.Tiles[mapMagicDoorAisle.tiles.right],
+            ];
+        }
+        return tiles;
+    }
+
+    getHubiTile():Tile
+    {
+        return this.state.map.Tiles[this.state.hubiPosition];
+    }
+
+    setStartHubiPosition():AppStateController
+    {
+        var newHubiPosition:number=-1;
+        do
+        {
+            newHubiPosition = Math.floor(Math.random() * this.state.tileStates.length);
+        }
+        while(this.state.players.filter(_=>_.position === newHubiPosition).length !== 0)
+        return new AppStateController(
+            objectAssign({}, this.state, {hubiPosition:newHubiPosition}));
+    }
+
+    addOperation(operation:Operation):AppStateController
+    {
+        var newOperations = this.state.operations.concat([
+            operation]);
+        return new AppStateController(
+            objectAssign({}, this.state, {operations:newOperations}));
+    }
+
+    isEndOfGame():boolean
+    {
+        return this.state.players.filter(_=>_.position === this.state.hubiPosition).length >= 2;        
+    }
+
+    getCurrentPlayer():Player
+    {
+        return this.state.players[0];
+    }
+    getAisleState(aisleNo:number):AisleState
+    {
+        return this.state.aisleStates[aisleNo];
+    }
+    getLastOperation():Operation
+    {
+        var lastOperation:Operation = {type:OperationTypes.NoMove, aisle:-1,position:-1,player:PlayerType.None}
+        if(this.state.operations.length > 0)
+        {
+            lastOperation = this.state.operations[this.state.operations.length-1];
+        }
+        return lastOperation;
+    }
+    isPlayerExists(position:number):boolean
+    {
+        var players = this.state.players.filter(player=>player.position === position)
+        return players.length > 0;
+    }
+
+    toJson():AppState
+    {
+        return this.state;
+    }
+}
+
 export enum GamePhase
 {
     Introduction,
@@ -569,7 +726,7 @@ export function appReducer(state: AppState = initialAppState, action: any = {typ
 
 function onTest(state:AppState):AppState
 {
-    playSound(audioBuffer);
+    Play(MessageId.AisleIsFreePassage);
     return state;
 }
 
@@ -588,32 +745,25 @@ function onListenHint(state:AppState):AppState
 
 function onListenHubiHint(state:AppState):AppState
 {
+    var stateController = new AppStateController(state);
+
     var newMessages = state.messages;
-    var currentPlayer = state.players[0];
+    var currentPlayer = stateController.getCurrentPlayer();
 
-    var hubiTileType = state.map.Tiles[state.hubiPosition].type;
-
-    var hintMessageId = getHubiHintMessage(hubiTileType);
+    var hintMessageId = getHubiHintMessage(stateController.getHubiTile().type);
     
-    // メッセージ
-    newMessages = newMessages.concat({
-        id:newMessages.length, 
-        icon:MessageIcons.GameMaster,
-        text:getMessage(hintMessageId)});
+    stateController = stateController
+        .addMessage(MessageIcons.GameMaster, hintMessageId)
+        .turnEnd()
+        .addOperation({
+            aisle:-1, 
+            player:currentPlayer.playerType, 
+            type:OperationTypes.Hint, 
+            position:currentPlayer.position
+        });
 
 
-    //現在の位置のまま
-    var newPlayer = currentPlayer;
-    var newPlayers = state.players.slice(1).concat(newPlayer);
-
-    // 操作を記録
-    var newOperations = state.operations.concat([{
-        aisle:-1, 
-        player:currentPlayer.playerType, 
-        type:OperationTypes.Hint, 
-        position:newPlayer.position}]);
-
-    return objectAssign({}, state, {players:newPlayers, operations:newOperations, messages:newMessages});
+    return stateController.toJson();
 }
 
 function getHubiHintMessage(hubiTileType:TileTypes):MessageId
@@ -637,55 +787,40 @@ function getHubiHintMessage(hubiTileType:TileTypes):MessageId
 
 function onListenAisleHint(state:AppState):AppState
 {
-    var hideAndClosedMagicDoors = state.aisleStates.filter(_=>_.shown === false && _.isClosedMagicDoor());
+    var stateController = new AppStateController(state);
+    var currentPlayer = stateController.getCurrentPlayer();
+    
+    var hideAndClosedMagicDoors = stateController.getHideMagicDoor();
     if(hideAndClosedMagicDoors.length === 0)
     {
-        // 教えられることはない
-        return state;
+        stateController = stateController
+            .addMessage(MessageIcons.GameMaster, MessageId.CannotHint)
+            .turnEnd()
+            .addOperation({
+                aisle:-1, 
+                player:currentPlayer.playerType, 
+                type:OperationTypes.Hint, 
+                position:currentPlayer.position
+            });
+        return stateController.toJson();
     }
 
-    var sortedDoors = hideAndClosedMagicDoors.sort((x,y)=>x.type - y.type);
-    var mapMagicDoorAisle = state.map.Aisles[sortedDoors[0].index];
-    if(mapMagicDoorAisle.tiles.up !== -1)
-    {
-        // 上下方向の通路
-        var tiles = [
-            state.map.Tiles[mapMagicDoorAisle.tiles.up],
-            state.map.Tiles[mapMagicDoorAisle.tiles.down],
-        ];
-    }
-    else
-    {
-        // 左右方向の通路
-        var tiles = [
-            state.map.Tiles[mapMagicDoorAisle.tiles.left],
-            state.map.Tiles[mapMagicDoorAisle.tiles.right],
-        ];
-    }
-    var newMessages = state.messages;
-    var currentPlayer = state.players[0];
+    var tiles = stateController.getNearTiles(hideAndClosedMagicDoors[0].index);
+
     
     var hintMessageId = getMagicDoorHintMessage(tiles);
 
-    // メッセージ
-    newMessages = newMessages.concat({
-        id:newMessages.length, 
-        icon:MessageIcons.GameMaster,
-        text:getMessage(hintMessageId)});
+    stateController = stateController
+        .addMessage(MessageIcons.GameMaster, getMagicDoorHintMessage(tiles))
+        .turnEnd()
+        .addOperation({
+            aisle:-1, 
+            player:currentPlayer.playerType, 
+            type:OperationTypes.Hint, 
+            position:currentPlayer.position
+        });
 
-
-    //現在の位置のまま
-    var newPlayer = currentPlayer;
-    var newPlayers = state.players.slice(1).concat(newPlayer);
-
-    // 操作を記録
-    var newOperations = state.operations.concat([{
-        aisle:-1, 
-        player:currentPlayer.playerType, 
-        type:OperationTypes.Hint, 
-        position:newPlayer.position}]);
-
-    return objectAssign({}, state, {players:newPlayers, operations:newOperations, messages:newMessages});
+    return stateController.toJson();
 }
 
 function getMagicDoorHintMessage(tiles:Tile[]):MessageId
@@ -767,7 +902,7 @@ enum MessageId
     HubiIsInWhiteCentipedeTile,
     HubiIsInWhiteToadTile,
     HubiIsInWhiteOwlTile,
-    
+    CannotHint,
 }
 
 function getMessage(messageId:MessageId):string
@@ -864,6 +999,8 @@ function getMessage(messageId:MessageId):string
         return 'フビは白いカエルの部屋にいるよ';
     case MessageId.HubiIsInWhiteOwlTile:
         return 'フビは白いフクロウの部屋にいるよ';
+    case MessageId.CannotHint:
+        return '教えられることはなにもないよ';
     default:
         return '';
     }
@@ -906,272 +1043,194 @@ function getAisleTypeMessageId(aisleType:AisleTypes, canPass:boolean):MessageId
 
 function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:Direction):AppState
 {
-    
-    var currentPlayer = state.players[0];
-    var newMessages = state.messages;
+    var stateController = new AppStateController(state);
 
-    var nextAisle = state.aisleStates[nextAisleNo];
-    var lastOperation:Operation = {type:OperationTypes.NoMove, aisle:-1,position:-1,player:PlayerType.None}
-    if(state.operations.length > 0)
-    {
-        lastOperation = state.operations[state.operations.length-1];
-    }
+    var currentPlayer = stateController.getCurrentPlayer();
+    var nextAisle = stateController.getAisleState(nextAisleNo);
 
     if(nextAisle.isClosedMagicDoor())
     {
         //魔法の扉を開ける判定
-        var nextPositionPlayers = state.players.filter(player=>player.position === nextTileNo)
-        if(nextPositionPlayers.length > 0)
+        if(stateController.isPlayerExists(nextTileNo))
         {
-            newMessages = newMessages.concat({
-                id:newMessages.length, 
-                icon:MessageIcons.GameMaster,
-                text:getMessage(MessageId.OpendMagicDoor)});
-
-            // 通路を更新
-            var newAisle = nextAisle.changeType(AisleTypes.MagicDoorOpened);
-            newAisle = newAisle.changeShown(true);
-            var newAisles = state.aisleStates.slice();
-            newAisles[newAisle.index] = newAisle;
-
-            // 移動
-            var newPlayer:Player = currentPlayer.createNewPlayer(nextTileNo);
-            var newPlayers = state.players.slice(1).concat(newPlayer);
-
-            // 操作を記録
-            var newOperations = state.operations.concat([{
-                aisle:nextAisleNo, 
-                player:currentPlayer.playerType, 
-                type:OperationTypes.Move, 
-                position:newPlayer.position}]);
-
-            var newGamePhase = state.phase;
-            var newHubiPosition = state.hubiPosition;
-            // すべての魔法の扉が開いたら、フビを探すモードへ変更
-            if(newAisles.filter(_=>_.isClosedMagicDoor()).length === 0)
+            stateController = stateController
+                .addMessage(MessageIcons.GameMaster, MessageId.OpendMagicDoor)
+                .updateAisleShown(nextAisle.index, true)
+                .updateAisleType(nextAisle.index, AisleTypes.MagicDoorOpened)
+                .movePlayer(nextTileNo)
+                .addOperation({aisle:nextAisleNo,
+                    player:currentPlayer.playerType,
+                    type:OperationTypes.Move,
+                    position:nextTileNo})
+                .turnEnd();
+            
+            if(stateController.getClosedMagicDoors().length === 0)
             {
-                newGamePhase = GamePhase.SearchHubi;
-
-                newMessages = newMessages.concat({
-                    id:newMessages.length, 
-                    icon:MessageIcons.GameMaster,
-                    text:getMessage(MessageId.StartSearchHubi)});
-                do
-                {
-                    newHubiPosition = Math.floor(Math.random() * state.tileStates.length);
-                }
-                while(newPlayers.filter(_=>_.position === newHubiPosition).length !== 0)
+                stateController = stateController
+                    .changeGamePhase(GamePhase.SearchHubi)
+                    .addMessage(MessageIcons.Fubi, MessageId.StartSearchHubi)
+                    .setStartHubiPosition();
             }
 
-            return objectAssign({}, state, {
-                players:newPlayers,
-                aisleStates:newAisles, 
-                operations:newOperations, 
-                messages:newMessages,
-                phase:newGamePhase,
-                hubiPosition:newHubiPosition});                            
+            return stateController.toJson();
         }
     }
     if(nextAisle.shown)
     {
-        if(currentPlayer.canPass(nextAisle) && lastOperation.player != currentPlayer.playerType)
+        if(currentPlayer.canPass(nextAisle) && stateController.getLastOperation().player != currentPlayer.playerType)
         {
             //ダブルムーブ
-            var newPlayer = currentPlayer.createNewPlayer(nextTileNo);
-            var newPlayers = state.players.slice();
-            newPlayers[0] = newPlayer;
+            stateController = stateController
+                .movePlayer(nextTileNo)
+                .addMessage(MessageIcons.GameMaster, MessageId.MovedShownAisle)
+                .addOperation({
+                    aisle:nextAisleNo, 
+                    player:currentPlayer.playerType, 
+                    type:OperationTypes.QuickMove, 
+                    position:nextTileNo
+                });
 
-            newMessages = newMessages.concat({
-                id:newMessages.length, 
-                icon:MessageIcons.GameMaster,
-                text:getMessage(MessageId.MovedShownAisle)});
-                
-            // 操作を記録
-            var newOperations = state.operations.concat([{
-                aisle:nextAisleNo, 
-                player:currentPlayer.playerType, 
-                type:OperationTypes.QuickMove, 
-                position:newPlayer.position}]);
-            
             // 終了判定
-            var newGamePhase = state.phase;
-            if(isSnapHubi(state))
+            if(stateController.isEndOfGame())
             {
-                newMessages = newMessages.concat({
-                    id:newMessages.length, 
-                    icon:MessageIcons.GameMaster,
-                    text:getMessage(MessageId.Congratulations)});
-                newGamePhase = GamePhase.Ending;
+                stateController = stateController
+                    .addMessage(MessageIcons.GameMaster, MessageId.Congratulations)
+                    .changeGamePhase(GamePhase.Ending);
             }
 
-            return objectAssign({}, state, {
-                players:newPlayers, 
-                operations:newOperations, 
-                messages:newMessages, 
-                phase:newGamePhase});                    
+            return stateController.toJson();
         }
         if(currentPlayer.canPass(nextAisle))
         {
-            //単なる移動
-            var newPlayer = currentPlayer.createNewPlayer(nextTileNo);
-            var newPlayers = state.players.slice(1).concat(newPlayer);
-            
-            newMessages = newMessages.concat({
-                id:newMessages.length, 
-                icon:MessageIcons.GameMaster,
-                text:getMessage(MessageId.Moved)});
-                
-            // 操作を記録
-            var newOperations = state.operations.concat([{
-                aisle:nextAisleNo, 
-                player:currentPlayer.playerType, 
-                type:OperationTypes.Move, 
-                position:newPlayer.position}]);
+            stateController = stateController
+                .movePlayer(nextTileNo)
+                .addMessage(MessageIcons.GameMaster, MessageId.Moved)
+                .addOperation({
+                    aisle:nextAisleNo, 
+                    player:currentPlayer.playerType, 
+                    type:OperationTypes.Move, 
+                    position:nextTileNo
+                })
+                .turnEnd();
+
 
             // 終了判定
-            var newGamePhase = state.phase;
-            if(isSnapHubi(state))
+            if(stateController.isEndOfGame())
             {
-                newMessages = newMessages.concat({
-                    id:newMessages.length, 
-                    icon:MessageIcons.GameMaster,
-                    text:getMessage(MessageId.Congratulations)});
-                newGamePhase = GamePhase.Ending;
+                stateController = stateController
+                    .addMessage(MessageIcons.GameMaster, MessageId.Congratulations)
+                    .changeGamePhase(GamePhase.Ending);
             }
-            
-            return objectAssign({}, state, {
-                players:newPlayers, 
-                operations:newOperations, 
-                messages:newMessages,
-                phase:newGamePhase});
+
+            return stateController.toJson();
         }
         else
         {
-            // このターンは終わり
-            var newPlayers = state.players.slice(1).concat(currentPlayer);
-            
-            //そちらにはいけない
-            newMessages = newMessages.concat({
-                id:newMessages.length, 
-                icon:MessageIcons.GameMaster,
-                text:getMessage(MessageId.CannotMove)});
-    
-            return objectAssign({}, state, {players:newPlayers,messages:newMessages});
+            stateController = stateController
+                .addMessage(MessageIcons.GameMaster, MessageId.CannotMove)
+                .turnEnd();
+
+            return stateController.toJson();
         }
     }
     else
     {
         if(currentPlayer.canPass(nextAisle))
         {
-            newMessages = newMessages.concat({
-                id:newMessages.length, 
-                icon:MessageIcons.GameMaster,
-                text:getMessage(getAisleTypeMessageId(nextAisle.type, true))});
-    
-            // 移動先へ移動
-            var newPlayer = currentPlayer.createNewPlayer(nextTileNo);
-            var newPlayers = state.players.slice(1).concat(newPlayer);
-                
-            // 操作を記録
-            var newOperations = state.operations.concat([{
-                aisle:nextAisleNo, 
-                player:currentPlayer.playerType, 
-                type:OperationTypes.Move, 
-                position:newPlayer.position}]);
-
-            // 通路を更新
-            var newAisle = nextAisle.changeShown(true);
-            var newAisles = state.aisleStates.slice();
-            newAisles[newAisle.index] = newAisle;
+            stateController = stateController
+                .addMessage(MessageIcons.GameMaster, getAisleTypeMessageId(nextAisle.type, true))
+                .movePlayer(nextTileNo)
+                .turnEnd()
+                .addOperation({
+                    aisle:nextAisleNo, 
+                    player:currentPlayer.playerType, 
+                    type:OperationTypes.Move, 
+                    position:nextTileNo
+                })
+                .updateAisleShown(nextAisleNo, true)
 
             // 終了判定
-            var newGamePhase = state.phase;
-            if(isSnapHubi(state))
+            if(stateController.isEndOfGame())
             {
-                newMessages = newMessages.concat({
-                    id:newMessages.length, 
-                    icon:MessageIcons.GameMaster,
-                    text:getMessage(MessageId.Congratulations)});
-                newGamePhase = GamePhase.Ending;
+                stateController = stateController
+                    .addMessage(MessageIcons.GameMaster, MessageId.Congratulations)
+                    .changeGamePhase(GamePhase.Ending);
             }
 
-            return objectAssign({}, state, {
-                players:newPlayers,
-                aisleStates:newAisles, 
-                operations:newOperations, 
-                messages:newMessages,
-                phase:newGamePhase });
+            return stateController.toJson();
         }
         else
         {
-            newMessages = newMessages.concat({
-                id:newMessages.length, 
-                icon:MessageIcons.GameMaster,
-                text:getMessage(getAisleTypeMessageId(nextAisle.type, false))});
-
-            //現在の位置のまま
-            var newPlayer = currentPlayer;
-            var newPlayers = state.players.slice(1).concat(newPlayer);
-
-            // 通路を更新
-            var newAisle = nextAisle.changeShown(true);
-            var newAisles = state.aisleStates.slice();
-            newAisles[newAisle.index] = newAisle;
-
-            // 操作を記録
-            var newOperations = state.operations.concat([{
-                aisle:nextAisleNo, 
-                player:currentPlayer.playerType, 
-                type:OperationTypes.Move, 
-                position:newPlayer.position}]);
-    
-            return objectAssign({}, state, {players:newPlayers,aisleStates:newAisles, operations:newOperations, messages:newMessages});                    
+            stateController = stateController
+                .addMessage(MessageIcons.GameMaster, getAisleTypeMessageId(nextAisle.type, false))
+                .turnEnd()
+                .updateAisleShown(nextAisleNo, true)
+                .addOperation({
+                    aisle:nextAisleNo, 
+                    player:currentPlayer.playerType, 
+                    type:OperationTypes.NoMove, 
+                    position:currentPlayer.position
+                })
+            return stateController.toJson();
         }
     }
 }
 
-function isSnapHubi(state:AppState):boolean
+function isSnapHubi(hubiPosition:number, players:Player[]):boolean
 {
-    return state.players.filter(_=>_.position === state.hubiPosition).length === 2;
+    return players.filter(_=>_.position === hubiPosition).length === 2;
 }
 
-(window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
-var context = new AudioContext();
+// (window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+// var context = new AudioContext();
+
+// var bufferTemp:ArrayBuffer = require('./se.mp3')
+// context.decodeAudioData(bufferTemp, function(buffer) {
+//     audioBuffer = buffer;
+//     });
 
 
-// サウンドを再生
-var playSound = function(buffer:AudioBuffer) {
-    // source を作成
-    var source = context.createBufferSource();
-    // buffer をセット
-    source.buffer = buffer;
-    // context に connect
-    source.connect(context.destination);
-    // 再生
-    source.start(0);
-  };
-
-var audioBuffer:AudioBuffer;
+function Play(message:MessageId):void
+{
+    //playSound(audioBuffer);
+}
 
 
+// // サウンドを再生
+// var playSound = function(buffer:AudioBuffer) {
+//     // source を作成
+//     var source = context.createBufferSource();
+//     // buffer をセット
+//     source.buffer = buffer;
+//     // context に connect
+//     source.connect(context.destination);
+//     // 再生
+//     source.start(0);
+//   };
 
-var getAudioBuffer = function(url:string) {  
-    var req = new XMLHttpRequest();
-    // array buffer を指定
-    req.responseType = 'arraybuffer';
+// var audioBuffer:AudioBuffer;
+
+
+
+// var getAudioBuffer = function(url:string) {  
+//     var req = new XMLHttpRequest();
+//     // array buffer を指定
+//     req.responseType = 'arraybuffer';
   
-    req.onreadystatechange = function() {
-      if (req.readyState === 4) {
-        if (req.status === 0 || req.status === 200) {
-          context.decodeAudioData(req.response, function(buffer) {
-            audioBuffer = buffer;
-            });
-        }
-      }
-    };
+//     req.onreadystatechange = function() {
+//       if (req.readyState === 4) {
+//         if (req.status === 0 || req.status === 200) {
+//             console.log(req.response);
+            
+//           context.decodeAudioData(req.response, function(buffer) {
+//             audioBuffer = buffer;
+//             });
+//         }
+//       }
+//     };
   
-    req.open('GET', url, true);
-    req.send('');
-  };
+//     req.open('GET', url, true);
+//     req.send('');
+//   };
 
-  getAudioBuffer('se.mp3');
+// //  getAudioBuffer('se.mp3');

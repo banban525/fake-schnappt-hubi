@@ -97,7 +97,7 @@ describe('Test for App', function() {
         expect(newState.players[0].playerType).not.toBe(currentPlayer.playerType);
         expect(newState.operations[0].aisle).toBe(0);
         expect(newState.operations[0].position).toBe(0);
-        expect(newState.operations[0].type).toBe(OperationTypes.Move);
+        expect(newState.operations[0].type).toBe(OperationTypes.NoMove);
         expect(newState.operations[0].player).toBe(currentPlayer.playerType);
     });
 
@@ -127,7 +127,7 @@ describe('Test for App', function() {
         
         var newState = appReducer(state, {type:'onMoveRight'});
 
-        expect(newState.players[0].playerType).toBe(currentPlayer.playerType);
+        expect(newState.players[0].playerType).not.toBe(currentPlayer.playerType);
         expect(newState.aisleStates[0].type).not.toBe(AisleTypes.MagicDoorOpened);
         expect(newState.operations.length).toBe(0);
     })
