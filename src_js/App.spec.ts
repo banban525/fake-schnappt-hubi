@@ -1,5 +1,5 @@
 
-import {createNewAisleStates,AisleState, Tile,Aisle,Player,PlayerType,AisleTypes,appReducer,OperationTypes, AppState} from './AppReducer';
+import {createNewAisleStates,AisleState, Tile,Aisle,Player,PlayerType,AisleTypes,appReducer,OperationTypes, AppState,MessageId} from './AppReducer';
 
 
 describe('Test for App', function() {
@@ -108,14 +108,18 @@ describe('Test for App', function() {
         state.players[0].position = 0;
         var currentPlayer = state.players[0];
         
-        var newState = appReducer(state, {type:'onMoveRight'});
+        var state = appReducer(state, {type:'onMoveRight'});
 
-        expect(newState.players[0].playerType).toBe(currentPlayer.playerType);
-        expect(newState.operations[0].aisle).toBe(0);
-        expect(newState.operations[0].position).toBe(1);
-        expect(newState.operations[0].type).toBe(OperationTypes.QuickMove);
-        expect(newState.operations[0].player).toBe(currentPlayer.playerType);
+        expect(state.players[0].playerType).toBe(currentPlayer.playerType);
+        expect(state.operations[0].aisle).toBe(0);
+        expect(state.operations[0].position).toBe(1);
+        expect(state.operations[0].type).toBe(OperationTypes.QuickMove);
+        expect(state.operations[0].player).toBe(currentPlayer.playerType);
 
+
+        state = appReducer(state, {type:'onMoveLeft'});
+        expect(state.players[0].playerType).not.toBe(currentPlayer.playerType);
+        
     });
 
     it('can not open magic door, when there is one player ', ()=>{
@@ -151,4 +155,96 @@ describe('Test for App', function() {
 
     })
 
+    it('Hubi appears', ()=>{
+        var state = appReducer();
+        state.aisleStates.forEach(_=>_.type = AisleTypes.FreePassage);
+        state.aisleStates.forEach(_=>_.shown = true);
+        state.aisleStates[0].type = AisleTypes.MagicDoor2;
+        state.aisleStates[1].type = AisleTypes.MagicDoorOpened;
+        state.players[0].position = 0;
+        state.players[1].position = 1;
+
+        expect(state.hubiPosition).toBe(-1);
+        
+        state = appReducer(state, {type:'onMoveRight'});
+        
+        expect(state.hubiPosition).not.toBe(-1);
+        expect(state.operations[state.operations.length-1].type).toBe(OperationTypes.ShownHubi)
+    });
+
+    it('move hubi', ()=>{
+        var state = appReducer();
+        state.aisleStates.forEach(_=>_.type = AisleTypes.FreePassage);
+        state.aisleStates.forEach(_=>_.shown = true);
+        state.aisleStates[0].type = AisleTypes.MagicDoor2;
+        state.aisleStates[1].type = AisleTypes.MagicDoorOpened;
+        state.players[0].position = 0;
+        state.players[1].position = 1;
+        
+        state = appReducer(state, {type:'onMoveRight'});
+        
+        state.hubiMoveTiming = [2,1,1,1,1];
+        var lastHubiPosition = state.hubiPosition;
+
+        state = appReducer(state, {type:'onMoveLeft'});
+        expect(state.hubiPosition).toBe(lastHubiPosition);
+        state = appReducer(state, {type:'onMoveRight'});
+        expect(state.hubiPosition).not.toBe(lastHubiPosition);
+    });
+
+    it('hubi do not move if no movable tiles.', ()=>{
+        var state = appReducer();
+        state.aisleStates.forEach(_=>_.type = AisleTypes.FreePassage);
+        state.aisleStates.forEach(_=>_.shown = true);
+        state.aisleStates[0].type = AisleTypes.MagicDoor2;
+        state.aisleStates[1].type = AisleTypes.MagicDoorOpened;
+        state.players[0].position = 0;
+        state.players[1].position = 1;
+        
+        state = appReducer(state, {type:'onMoveRight'});
+        state.hubiPosition = 0;
+        state.hubiMoveTiming = [1,1,1,1,1];
+        state.players[1].position = 1;
+        state.players[2].position = 4;
+        state.players[3].position = 5;
+
+        state = appReducer(state, {type:'onMoveRight'});
+        expect(state.hubiPosition).toBe(0);
+    })
+
+    it('snap hubi with 1 player', ()=>{
+        var state = appReducer();
+        state.aisleStates.forEach(_=>_.type = AisleTypes.FreePassage);
+        state.aisleStates.forEach(_=>_.shown = true);
+        state.aisleStates[0].type = AisleTypes.MagicDoor2;
+        state.aisleStates[1].type = AisleTypes.MagicDoorOpened;
+        state.players[0].position = 0;
+        state.players[1].position = 1;
+        
+        state = appReducer(state, {type:'onMoveRight'});
+        state.hubiPosition = 0;
+
+        state = appReducer(state, {type:'onMoveLeft'});
+        var lastMessages = state.messages[state.messages.length-1];
+        expect(lastMessages.messageId).toBe(MessageId.FindHubi);
+
+    });
+
+    it('snap hubi with 2 player', ()=>{
+        var state = appReducer();
+        state.aisleStates.forEach(_=>_.type = AisleTypes.FreePassage);
+        state.aisleStates.forEach(_=>_.shown = true);
+        state.aisleStates[0].type = AisleTypes.MagicDoor2;
+        state.aisleStates[1].type = AisleTypes.MagicDoorOpened;
+        state.players[0].position = 0;
+        state.players[1].position = 1;
+        
+        state = appReducer(state, {type:'onMoveRight'});
+        state.hubiPosition = 0;
+        state.players[1].position = 0;
+
+        state = appReducer(state, {type:'onMoveLeft'});
+        var lastMessages = state.messages[state.messages.length-1];
+        expect(lastMessages.messageId).toBe(MessageId.Congratulations);
+    });
 });
