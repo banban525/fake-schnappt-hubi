@@ -169,7 +169,7 @@ class App extends Component<AppProps> {
             />
 
             <div style={{float:"right",width:"400px"}}>
-            <p>{this.props.operations.length}/{30}</p>
+            <p>{this.props.turns.length}/{30}</p>
             <svg width="400px" height="400px">
                 <polygon points="0,0 0,400 400,400 400,0 0,0 10,10 90,10 90,30 110,30 110,10 190,10 190,30 210,30 210,10 290,10 290,30 310,30 310,10  390,10 390,90 370,90 370,110 390,110 390,190 370,190 370,210 390,210 390,290 370,290 370,310 390,310 390,390  310,390 310,370 290,370 290,390 210,390 210,370 190,370 190,390 110,390 110,370 90,370 90,390  10,390 10,310 30,310 30,290 10,290 10,290 10,210 30,210 30,190 10,190 10,110 30,110 30,90 10,90    10,10 0,0" stroke="black" strokeWidth="1" fill="saddlebrown" />    
                 <polygon points=" 90, 90  90, 70 110, 70 110, 90 130, 90 130,110 110,110 110,130  90,130  90,110  70,110  70, 90  90, 90" stroke="black" strokeWidth="1" fill="saddlebrown" />    
@@ -526,9 +526,11 @@ class App extends Component<AppProps> {
             </Paper>
             <Paper style={{width:"300px"}} zDepth={1}>
                 <List style={{height:"200px",overflowY:"scroll"}}>
-                    {this.props.messages.slice().reverse().map(message=>{
-                        return <ListItem key={"msg:"+message.id} disabled={true} leftAvatar={this.getMessageAvatar(message.icon)}>{message.text}</ListItem>
-                    })}
+                    {
+                        this.props.turns.map(_=>_.messages).reduce((x,y)=>x.concat(y)).reverse().map(message=>{
+                            return <ListItem key={"msg:"+message.id} disabled={true} leftAvatar={this.getMessageAvatar(message.icon)}>{message.text}</ListItem>
+                        })
+                    }
                 </List>
             </Paper>
         </div>

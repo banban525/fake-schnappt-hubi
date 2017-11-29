@@ -4,33 +4,90 @@ import * as immutable from 'immutable';
 export interface AppState
 {
     map: Map;
-    operations: Operation[];
     players: Player[];
     tileStates:TileState[];
     aisleStates:AisleState[];
-    messages:Message[];
-    remainsCount:number;
     phase:GamePhase;
     hubiPosition:number;
     hubiMoveTiming:number[];
     turns:TurnHistory[];
 }
 
+export enum PlayerOperations
+{
+    Unknown,
+    MoveUp,
+    MoveDown,
+    MoveLeft,
+    MoveRight,
+    ListenHint
+}
+
+export enum HubiOperations
+{
+    None,
+    Shown,
+    Move,
+    Snapped
+}
+
 class TurnHistory
 {
-    constructor(no:number, playerType:PlayerType, operationType:OperationTypes)
+    constructor(no:number, playerType:PlayerType)
     {
         this.no = no;
         this.messages = [];
         this.playerType = playerType;
         this.hubiPosition = -1;
-        this.operationType = operationType;
+        this.playerOperation = PlayerOperations.Unknown;
+        this.hubiOperation = HubiOperations.None;
     }
     no:number;
     messages:Message[];
     playerType:PlayerType;
     hubiPosition:number;
-    operationType:OperationTypes;
+    playerOperation:PlayerOperations;
+    hubiOperation:HubiOperations
+
+    addMessage(message:Message):TurnHistory
+    {
+        var result = new TurnHistory(this.no, this.playerType);
+        result.messages = this.messages.concat([message]);
+        result.playerOperation = this.playerOperation;
+        result.hubiPosition = this.hubiPosition;
+        result.hubiOperation = this.hubiOperation;
+        return result;
+    }
+
+    updateHubiPosition(hubiPosition:number):TurnHistory
+    {
+        var result = new TurnHistory(this.no, this.playerType);
+        result.messages = this.messages;
+        result.playerOperation = this.playerOperation;
+        result.hubiPosition = hubiPosition;
+        result.hubiOperation = this.hubiOperation;
+        return result;
+    }
+
+    updateHubiOperation(hubiOperation:HubiOperations):TurnHistory
+    {
+        var result = new TurnHistory(this.no, this.playerType);
+        result.messages = this.messages;
+        result.playerOperation = this.playerOperation;
+        result.hubiPosition = this.hubiPosition;
+        result.hubiOperation = hubiOperation;
+        return result;
+    }
+
+    updatePlayerOperation(playerOperation:PlayerOperations):TurnHistory
+    {
+        var result = new TurnHistory(this.no, this.playerType);
+        result.messages = this.messages;
+        result.playerOperation = playerOperation;
+        result.hubiPosition = this.hubiPosition;
+        result.hubiOperation = this.hubiOperation;
+        return result;
+    }
 }
 
 export class AppStateController
@@ -48,7 +105,7 @@ export class AppStateController
         var newPlayer:Player = currentPlayer.createNewPlayer(position);
         var newPlayers = this.state.players.slice();
         newPlayers[0] = newPlayer;
-        
+
         return new AppStateController(
             objectAssign({}, this.state, {players:newPlayers}));
     }
@@ -72,16 +129,22 @@ export class AppStateController
             objectAssign({}, this.state, {aisleStates:newAisles}));
     }
 
+    getAllMessagesCount():number
+    {
+        return this.state.turns.map(_=>_.messages).reduce((x,y)=>x.concat(y)).length;
+    }
+
     addMessage(icon:MessageIcons,messageId:MessageId):AppStateController
     {
-        var newMessages = this.state.messages;
-        newMessages = newMessages.concat({
-            id:newMessages.length, 
+        var turns = this.state.turns.slice();
+        turns[turns.length-1]=turns[turns.length-1].addMessage({
+            id:this.getAllMessagesCount(), 
             icon:icon,
             messageId:messageId,
             text:getMessage(messageId)});
+        
         return new AppStateController(
-            this.state = objectAssign({}, this.state, {messages:newMessages}));
+            this.state = objectAssign({}, this.state, {turns:turns}));
    }
 
     changePlayer():AppStateController
@@ -145,16 +208,12 @@ export class AppStateController
             newHubiPosition = Math.floor(Math.random() * this.state.tileStates.length);
         }
         while(this.state.players.filter(_=>_.position === newHubiPosition).length !== 0)
-        return new AppStateController(
-            objectAssign({}, this.state, {hubiPosition:newHubiPosition}));
-    }
 
-    addOperation(operation:Operation):AppStateController
-    {
-        var newOperations = this.state.operations.concat([
-            operation]);
+        var turns = this.state.turns.slice();
+        turns[turns.length-1]=turns[turns.length-1].updateHubiPosition(newHubiPosition);
+
         return new AppStateController(
-            objectAssign({}, this.state, {operations:newOperations}));
+            objectAssign({}, this.state, {hubiPosition:newHubiPosition, turns:turns}));
     }
     
     moveHubi():AppStateController
@@ -168,8 +227,11 @@ export class AppStateController
 
         var nextTileNo = movableTileNos[Math.floor(Math.random() * movableTileNos.length)];
 
+        var turns = this.state.turns.slice();
+        turns[turns.length-1]=turns[turns.length-1].updateHubiPosition(nextTileNo);
+
         return new AppStateController(
-            objectAssign({}, this.state, {hubiPosition:nextTileNo}));
+            objectAssign({}, this.state, {hubiPosition:nextTileNo, turns:turns}));
     }
 
     getHubiMovableTileNos():number[]
@@ -231,15 +293,14 @@ export class AppStateController
     {
         return this.state.aisleStates[aisleNo];
     }
-    getLastPlayerOperation():Operation
+    getLastTurn():TurnHistory
     {
-        var lastOperation:Operation = {type:OperationTypes.NoMove, aisle:-1,position:-1,player:PlayerType.None}
-        var playerOperations = this.state.operations.filter(_=>_.type !== OperationTypes.ShownHubi && _.type !== OperationTypes.MoveHubi)
-        if(playerOperations.length > 0)
+        if(this.state.turns.length <= 1)
         {
-            lastOperation = playerOperations[playerOperations.length-1];
+            return new TurnHistory(-1, PlayerType.None);
         }
-        return lastOperation;
+        
+        return this.state.turns[this.state.turns.length-1-1];
     }
     isPlayerExists(position:number):boolean
     {
@@ -248,7 +309,7 @@ export class AppStateController
     }
     getNextHubiMoveTiming():number
     {
-        var hubiMoveOperations = this.getHubiOperations();
+        var hubiMoveOperations = this.getHubiTurns();
         if(hubiMoveOperations.length === 0)
         {
             return this.state.hubiMoveTiming[0];
@@ -257,29 +318,52 @@ export class AppStateController
         return this.state.hubiMoveTiming[hubiMoveOperations.length-1];
 
     }
-    getPlayerOperationsFromLastHubiOperation():Operation[]
-    {
-        var hubiMoveOperations = this.getHubiOperations();
-        if(hubiMoveOperations.length === 0)
-        {
-            return this.state.operations;
-        }
 
-        var lastHubiOperationIndex = this.state.operations.indexOf(hubiMoveOperations[hubiMoveOperations.length-1]);
-        if(lastHubiOperationIndex === this.state.operations.length-1)
+    getTurnsFromLastHubiOperation():TurnHistory[]
+    {
+        var hubiTurns = this.getHubiTurns();
+        
+        if(hubiTurns.length === 0)
         {
-            return [];
+            return this.state.turns;
         }
-        if(lastHubiOperationIndex === -1)
-        {
-            return this.state.operations;
-        }
-        return this.state.operations.slice(lastHubiOperationIndex + 1);
+        var lastHubiTurn = hubiTurns[hubiTurns.length-1];
+        return this.state.turns.slice(lastHubiTurn.no+1);
+
     }
 
-    getHubiOperations():Operation[]
+    getHubiTurns():TurnHistory[]
     {
-        return this.state.operations.filter(_=>_.type === OperationTypes.MoveHubi || _.type === OperationTypes.ShownHubi);
+        return this.state.turns.filter(_=>_.hubiOperation !== HubiOperations.None);
+    }
+
+    EndTurn():AppStateController
+    {
+        var newTurn = new TurnHistory(
+            this.state.turns.length, 
+            this.state.players[0].playerType);
+        newTurn.hubiPosition = this.state.hubiPosition;
+        
+        var newTurns = this.state.turns.concat([newTurn]);
+        return new AppStateController(
+            objectAssign({}, this.state, {turns:newTurns}));
+    }
+
+    updatePlayerOperation(playerOperation:PlayerOperations):AppStateController
+    {
+        var turns = this.state.turns.slice();
+        turns[turns.length-1]=turns[turns.length-1].updatePlayerOperation(playerOperation);
+
+        return new AppStateController(
+            objectAssign({}, this.state, {turns:turns}));
+    }
+    addHubiOperation(hubiOperations:HubiOperations):AppStateController
+    {
+        var turns = this.state.turns.slice();
+        turns[turns.length-1]=turns[turns.length-1].updateHubiOperation(hubiOperations);
+
+        return new AppStateController(
+            objectAssign({}, this.state, {turns:turns}));
     }
 
     toJson():AppState
@@ -448,24 +532,6 @@ export class TileState
     index: number;
     hadHintDoorHint: boolean;
     hadHintFubi: boolean;
-}
-
-export enum OperationTypes
-{
-    Move,
-    QuickMove,
-    Hint,
-    NoMove,
-    ShownHubi,
-    MoveHubi,
-}
-
-export interface Operation
-{
-    type: OperationTypes,
-    position: number,
-    aisle: number,
-    player: PlayerType
 }
 
 export interface NextTo
@@ -765,7 +831,6 @@ function createNewTileStates():TileState[]
 var initialAppState:AppState =
 {
     map:constMap,
-    operations:[],
     players:[
         new Player(PlayerType.GreenRabbit),
         new Player(PlayerType.RedMouse),
@@ -774,12 +839,10 @@ var initialAppState:AppState =
     ],
     aisleStates:createNewAisleStates(),
     tileStates:createNewTileStates(),
-    messages:[],
-    remainsCount:20,
     phase:GamePhase.SearchMagicDoor,
     hubiPosition:-1,
     hubiMoveTiming:[4,4,3,3,4,3,3,2,3,4,3,3],
-    turns:[],
+    turns:[new TurnHistory(0, PlayerType.GreenRabbit)],
 };
 initialAppState.players[0].position = 0;
 initialAppState.players[1].position = 3;
@@ -818,29 +881,28 @@ export class AppActionDispatcher
 export function appReducer(state: AppState = initialAppState, action: any = {type:'none'}):AppState
 {
     var currentPlayer = state.players[0];
-    var newMessages = state.messages;
 
     switch(action.type)
     {
         case 'onMoveUp':
             var nextAisleNo = state.map.Tiles[currentPlayer.position].aisles.up;
             var nextTileNo = state.map.Aisles[nextAisleNo].tiles.up;
-            var result = onMove(state, nextAisleNo, nextTileNo, Direction.up);
+            var result = onMove(state, nextAisleNo, nextTileNo, PlayerOperations.MoveUp);
             return result;
         case 'onMoveDown':
             var nextAisleNo = state.map.Tiles[currentPlayer.position].aisles.down;
             var nextTileNo = state.map.Aisles[nextAisleNo].tiles.down;
-            var result = onMove(state, nextAisleNo, nextTileNo, Direction.down);
+            var result = onMove(state, nextAisleNo, nextTileNo, PlayerOperations.MoveDown);
             return result;
         case 'onMoveLeft':
             var nextAisleNo = state.map.Tiles[currentPlayer.position].aisles.left;
             var nextTileNo = state.map.Aisles[nextAisleNo].tiles.left;
-            var result = onMove(state, nextAisleNo, nextTileNo, Direction.left);
+            var result = onMove(state, nextAisleNo, nextTileNo, PlayerOperations.MoveLeft);
             return result;
         case 'onMoveRight':
             var nextAisleNo = state.map.Tiles[currentPlayer.position].aisles.right;
             var nextTileNo = state.map.Aisles[nextAisleNo].tiles.right;
-            var result = onMove(state, nextAisleNo, nextTileNo, Direction.right);
+            var result = onMove(state, nextAisleNo, nextTileNo, PlayerOperations.MoveRight);
             return result;
         case 'onListenHint':
             return onListenHint(state);
@@ -872,24 +934,18 @@ function onListenHint(state:AppState):AppState
 function onListenHubiHint(state:AppState):AppState
 {
     var stateController = new AppStateController(state);
+    stateController = stateController.updatePlayerOperation(PlayerOperations.ListenHint);
 
-    var newMessages = state.messages;
     var currentPlayer = stateController.getCurrentPlayer();
 
     var hintMessageId = getHubiHintMessage(stateController.getHubiTile().type);
     
     stateController = stateController
         .addMessage(MessageIcons.GameMaster, hintMessageId)
-        .changePlayer()
-        .addOperation({
-            aisle:-1, 
-            player:currentPlayer.playerType, 
-            type:OperationTypes.Hint, 
-            position:currentPlayer.position
-        });
+        .changePlayer();
 
 
-    return stateController.toJson();
+    return stateController.EndTurn().toJson();
 }
 
 function getHubiHintMessage(hubiTileType:TileTypes):MessageId
@@ -914,6 +970,8 @@ function getHubiHintMessage(hubiTileType:TileTypes):MessageId
 function onListenAisleHint(state:AppState):AppState
 {
     var stateController = new AppStateController(state);
+    stateController = stateController.updatePlayerOperation(PlayerOperations.ListenHint);
+
     var currentPlayer = stateController.getCurrentPlayer();
     
     var hideAndClosedMagicDoors = stateController.getHideMagicDoor();
@@ -921,14 +979,8 @@ function onListenAisleHint(state:AppState):AppState
     {
         stateController = stateController
             .addMessage(MessageIcons.GameMaster, MessageId.CannotHint)
-            .changePlayer()
-            .addOperation({
-                aisle:-1, 
-                player:currentPlayer.playerType, 
-                type:OperationTypes.Hint, 
-                position:currentPlayer.position
-            });
-        return stateController.toJson();
+            .changePlayer();
+        return stateController.EndTurn().toJson();
     }
 
     var tiles = stateController.getNearTiles(hideAndClosedMagicDoors[0].index);
@@ -938,15 +990,9 @@ function onListenAisleHint(state:AppState):AppState
 
     stateController = stateController
         .addMessage(MessageIcons.GameMaster, getMagicDoorHintMessage(tiles))
-        .changePlayer()
-        .addOperation({
-            aisle:-1, 
-            player:currentPlayer.playerType, 
-            type:OperationTypes.Hint, 
-            position:currentPlayer.position
-        });
+        .changePlayer();
 
-    return stateController.toJson();
+    return stateController.EndTurn().toJson();
 }
 
 function getMagicDoorHintMessage(tiles:Tile[]):MessageId
@@ -971,14 +1017,6 @@ function getMagicDoorHintMessage(tiles:Tile[]):MessageId
 
     var matchedMessage = messageMap.filter(_=>_.tiles[0] === blackTile.type && _.tiles[1] === whiteTile.type)[0];
     return matchedMessage.messages[messageDetailLevel];
-}
-
-enum Direction
-{
-    up,
-    down,
-    left,
-    right
 }
 
 export enum MessageId
@@ -1167,10 +1205,10 @@ function getAisleTypeMessageId(aisleType:AisleTypes, canPass:boolean):MessageId
 }
 
 
-function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:Direction):AppState
+function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOperation:PlayerOperations):AppState
 {
     var stateController = new AppStateController(state);
-
+    stateController = stateController.updatePlayerOperation(playerOperation);
     var currentPlayer = stateController.getCurrentPlayer();
     var nextAisle = stateController.getAisleState(nextAisleNo);
 
@@ -1184,10 +1222,6 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:
                 .updateAisleShown(nextAisle.index, true)
                 .updateAisleType(nextAisle.index, AisleTypes.MagicDoorOpened)
                 .movePlayer(nextTileNo)
-                .addOperation({aisle:nextAisleNo,
-                    player:currentPlayer.playerType,
-                    type:OperationTypes.Move,
-                    position:nextTileNo})
                 .changePlayer();
             
             if(stateController.getClosedMagicDoors().length === 0)
@@ -1195,38 +1229,27 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:
                 stateController = stateController
                     .changeGamePhase(GamePhase.SearchHubi)
                     .addMessage(MessageIcons.Fubi, MessageId.StartSearchHubi)
-                    .setStartHubiPosition();
-                stateController = stateController
-                    .addOperation({
-                        aisle:-1,
-                        player:PlayerType.None,
-                        position:stateController.getHubiTile().index,
-                        type: OperationTypes.ShownHubi
-                    });
+                    .setStartHubiPosition()
+                    .addHubiOperation(HubiOperations.Shown);
             }
 
-            return stateController.toJson();
+            return stateController.EndTurn().toJson();
         }
     }
     if(nextAisle.shown)
     {
-        if(currentPlayer.canPass(nextAisle) && stateController.getLastPlayerOperation().player != currentPlayer.playerType)
+        if(currentPlayer.canPass(nextAisle) && stateController.getLastTurn().playerType != currentPlayer.playerType)
         {
             //ダブルムーブ
             stateController = stateController
                 .movePlayer(nextTileNo)
-                .addMessage(MessageIcons.GameMaster, MessageId.MovedShownAisle)
-                .addOperation({
-                    aisle:nextAisleNo, 
-                    player:currentPlayer.playerType, 
-                    type:OperationTypes.QuickMove, 
-                    position:nextTileNo
-                });
+                .addMessage(MessageIcons.GameMaster, MessageId.MovedShownAisle);
             if(stateController.isEndOfGame())
             {
                 // 終了
                 stateController = stateController
                     .addMessage(MessageIcons.GameMaster, MessageId.Congratulations)
+                    .addHubiOperation(HubiOperations.Snapped)
                     .changeGamePhase(GamePhase.Ending);
             }
             else if(stateController.isMatchHubiPosition(nextTileNo))
@@ -1240,19 +1263,13 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:
                 stateController = MoveHubi(stateController);
             }
 
-            return stateController.toJson();
+            return stateController.EndTurn().toJson();
         }
         if(currentPlayer.canPass(nextAisle))
         {
             stateController = stateController
                 .movePlayer(nextTileNo)
                 .addMessage(MessageIcons.GameMaster, MessageId.Moved)
-                .addOperation({
-                    aisle:nextAisleNo, 
-                    player:currentPlayer.playerType, 
-                    type:OperationTypes.Move, 
-                    position:nextTileNo
-                })
                 .changePlayer();
 
             if(stateController.isEndOfGame())
@@ -1274,7 +1291,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:
                 stateController = MoveHubi(stateController);
             }
 
-            return stateController.toJson();
+            return stateController.EndTurn().toJson();
         }
         else
         {
@@ -1288,7 +1305,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:
                 stateController = MoveHubi(stateController);
             }
     
-            return stateController.toJson();
+            return stateController.EndTurn().toJson();
         }
     }
     else
@@ -1299,12 +1316,6 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:
                 .addMessage(MessageIcons.GameMaster, getAisleTypeMessageId(nextAisle.type, true))
                 .movePlayer(nextTileNo)
                 .changePlayer()
-                .addOperation({
-                    aisle:nextAisleNo, 
-                    player:currentPlayer.playerType, 
-                    type:OperationTypes.Move, 
-                    position:nextTileNo
-                })
                 .updateAisleShown(nextAisleNo, true)
             
             if(stateController.isEndOfGame())
@@ -1326,27 +1337,21 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,direction:
                 stateController = (stateController);
             }
 
-            return stateController.toJson();
+            return stateController.EndTurn().toJson();
         }
         else
         {
             stateController = stateController
                 .addMessage(MessageIcons.GameMaster, getAisleTypeMessageId(nextAisle.type, false))
                 .changePlayer()
-                .updateAisleShown(nextAisleNo, true)
-                .addOperation({
-                    aisle:nextAisleNo, 
-                    player:currentPlayer.playerType, 
-                    type:OperationTypes.NoMove, 
-                    position:currentPlayer.position
-                })
+                .updateAisleShown(nextAisleNo, true);
             
             // フビの移動
             if(isNeedHubiMove(stateController))
             {
                 stateController = (stateController);
             }
-            return stateController.toJson();
+            return stateController.EndTurn().toJson();
         }
     }
 }
@@ -1357,7 +1362,7 @@ function isNeedHubiMove(stateController:AppStateController):boolean
     {
         return false;
     }
-    var playerOperations = stateController.getPlayerOperationsFromLastHubiOperation();
+    var playerOperations = stateController.getTurnsFromLastHubiOperation();
     var moveTimingCount = stateController.getNextHubiMoveTiming();
     return moveTimingCount <= playerOperations.length;
 }
@@ -1367,12 +1372,7 @@ function MoveHubi(stateController:AppStateController):AppStateController
     stateController = stateController
         .moveHubi()
         .addMessage(MessageIcons.Fubi, MessageId.HubiMoved)
-        .addOperation({
-            aisle:-1,
-            player:PlayerType.None,
-            type:OperationTypes.MoveHubi,
-            position:stateController.getHubiTile().index
-        });
+        .addHubiOperation(HubiOperations.Move);
     return stateController;
 }
 

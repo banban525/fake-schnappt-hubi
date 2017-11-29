@@ -1,5 +1,5 @@
 
-import {createNewAisleStates,AisleState, Tile,Aisle,Player,PlayerType,AisleTypes,appReducer,OperationTypes, AppState,MessageId} from './AppReducer';
+import {createNewAisleStates,AisleState, Tile,Aisle,Player,PlayerType,AisleTypes,appReducer,PlayerOperations, AppState,MessageId,HubiOperations} from './AppReducer';
 
 
 describe('Test for App', function() {
@@ -74,10 +74,8 @@ describe('Test for App', function() {
         expect(newState.aisleStates[0].shown).toBeTruthy();
         expect(newState.players[3].playerType).toBe(currentPlayer.playerType);
         expect(newState.players[3].position).toBe(1);
-        expect(newState.operations[0].aisle).toBe(0);
-        expect(newState.operations[0].position).toBe(1);
-        expect(newState.operations[0].type).toBe(OperationTypes.Move);
-        expect(newState.operations[0].player).toBe(currentPlayer.playerType);
+        expect(newState.turns[0].playerOperation).toBe(PlayerOperations.MoveRight);
+        expect(newState.turns[0].playerType).toBe(currentPlayer.playerType);
 
         expect(newState.players[newState.players.length-1].canPass).not.toBeUndefined();
         expect(newState.aisleStates[0].isClosedMagicDoor).not.toBeUndefined();
@@ -95,10 +93,8 @@ describe('Test for App', function() {
 
         expect(newState.aisleStates[0].shown).toBeTruthy();
         expect(newState.players[0].playerType).not.toBe(currentPlayer.playerType);
-        expect(newState.operations[0].aisle).toBe(0);
-        expect(newState.operations[0].position).toBe(0);
-        expect(newState.operations[0].type).toBe(OperationTypes.NoMove);
-        expect(newState.operations[0].player).toBe(currentPlayer.playerType);
+        expect(newState.turns[0].playerOperation).toBe(PlayerOperations.MoveRight);
+        expect(newState.turns[0].playerType).toBe(currentPlayer.playerType);
     });
 
     it('player can move twice, if player move shown aisle.', ()=>{
@@ -111,10 +107,8 @@ describe('Test for App', function() {
         var state = appReducer(state, {type:'onMoveRight'});
 
         expect(state.players[0].playerType).toBe(currentPlayer.playerType);
-        expect(state.operations[0].aisle).toBe(0);
-        expect(state.operations[0].position).toBe(1);
-        expect(state.operations[0].type).toBe(OperationTypes.QuickMove);
-        expect(state.operations[0].player).toBe(currentPlayer.playerType);
+        expect(state.turns[0].playerOperation).toBe(PlayerOperations.MoveRight);
+        expect(state.turns[0].playerType).toBe(currentPlayer.playerType);
 
 
         state = appReducer(state, {type:'onMoveLeft'});
@@ -133,7 +127,7 @@ describe('Test for App', function() {
 
         expect(newState.players[0].playerType).not.toBe(currentPlayer.playerType);
         expect(newState.aisleStates[0].type).not.toBe(AisleTypes.MagicDoorOpened);
-        expect(newState.operations.length).toBe(0);
+        expect(newState.turns.length).toBe(2);
     })
 
     it('open magic door, when ther are two players', ()=>{
@@ -148,11 +142,6 @@ describe('Test for App', function() {
         
         expect(newState.players[3].playerType).toBe(currentPlayer.playerType);
         expect(newState.aisleStates[0].type).toBe(AisleTypes.MagicDoorOpened);
-        expect(newState.operations[0].aisle).toBe(0);
-        expect(newState.operations[0].position).toBe(1);
-        expect(newState.operations[0].type).toBe(OperationTypes.Move);
-        expect(newState.operations[0].player).toBe(currentPlayer.playerType);
-
     })
 
     it('Hubi appears', ()=>{
@@ -169,7 +158,7 @@ describe('Test for App', function() {
         state = appReducer(state, {type:'onMoveRight'});
         
         expect(state.hubiPosition).not.toBe(-1);
-        expect(state.operations[state.operations.length-1].type).toBe(OperationTypes.ShownHubi)
+        expect(state.turns[0].hubiOperation).toBe(HubiOperations.Shown)
     });
 
     it('move hubi', ()=>{
@@ -180,12 +169,11 @@ describe('Test for App', function() {
         state.aisleStates[1].type = AisleTypes.MagicDoorOpened;
         state.players[0].position = 0;
         state.players[1].position = 1;
-        
+                
         state = appReducer(state, {type:'onMoveRight'});
         
         state.hubiMoveTiming = [2,1,1,1,1];
         var lastHubiPosition = state.hubiPosition;
-
         state = appReducer(state, {type:'onMoveLeft'});
         expect(state.hubiPosition).toBe(lastHubiPosition);
         state = appReducer(state, {type:'onMoveRight'});
@@ -225,7 +213,8 @@ describe('Test for App', function() {
         state.hubiPosition = 0;
 
         state = appReducer(state, {type:'onMoveLeft'});
-        var lastMessages = state.messages[state.messages.length-1];
+        var lastTurn = state.turns[state.turns.length-2];
+        var lastMessages = lastTurn.messages[lastTurn.messages.length-1];
         expect(lastMessages.messageId).toBe(MessageId.FindHubi);
 
     });
@@ -244,7 +233,8 @@ describe('Test for App', function() {
         state.players[1].position = 0;
 
         state = appReducer(state, {type:'onMoveLeft'});
-        var lastMessages = state.messages[state.messages.length-1];
+        var lastTurn = state.turns[state.turns.length-2];
+        var lastMessages = lastTurn.messages[lastTurn.messages.length-1];
         expect(lastMessages.messageId).toBe(MessageId.Congratulations);
     });
 });
