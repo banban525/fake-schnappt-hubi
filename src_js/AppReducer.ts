@@ -876,6 +876,9 @@ export class AppActionDispatcher
   onTest():any{
     this.dispatch({type:"onTest"});
   }
+  onOkSelectPlayer():any{
+    this.dispatch({type:"onTest"});
+}
 }
 
 export function appReducer(state: AppState = initialAppState, action: any = {type:'none'}):AppState
