@@ -29,7 +29,7 @@ export default class InitialSettings extends Component<InitialSettingsProps> {
         return <MuiThemeProvider muiTheme={getMuiTheme()}>
         <div>
             {this.props.phase !== SettingsPhases.SettingsComplated && <AppBar
-                title="Snap Hibi"
+                title="Fake Schnappt Hubi"
                 iconClassNameRight="muidocs-icon-navigation-expand-more"
                 />}
             <Paper style={{width:"300px"}} zDepth={1}>

@@ -115,7 +115,7 @@ class App extends Component<AppProps> {
       <MuiThemeProvider muiTheme={getMuiTheme()}>
         <div>
             <AppBar
-                title="Snap Hibi"
+                title="Fake Schnappt Hubi"
                 iconClassNameRight="muidocs-icon-navigation-expand-more"
                 />
             <div style={{float:"right",width:"400px"}}>
