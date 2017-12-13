@@ -20,7 +20,9 @@ import SvgIcon from 'material-ui/SvgIcon';
 import ImageDefinition from './icons/ImageDefinition';
 import Ghost from './icons/Ghost';
 import PlayerComponent from './icons/PlayerComponent';
-
+import InitialSettings from './InitialSettings';
+import SelectStartPlayer from './SelectStartPlayer';
+import CustomizeDifficulty from './CustomizeDifficulty';
 
 import {AppActionDispatcher, AppState,Aisle,AisleTypes,Player,PlayerType,AisleState,MessageIcons,GamePhase} from './AppReducer';
 
@@ -115,8 +117,7 @@ class App extends Component<AppProps> {
             <AppBar
                 title="Snap Hibi"
                 iconClassNameRight="muidocs-icon-navigation-expand-more"
-            />
-
+                />
             <div style={{float:"right",width:"400px"}}>
             <ImageDefinition/>
             <p>{this.props.turns.length}/{30}</p>
@@ -218,86 +219,88 @@ class App extends Component<AppProps> {
             <p style={{color:"black"}}>■カベ</p>
             <button onClick={()=>this.props.actions.onTest()}>Test</button>
             </div>
-            <Paper style={{width:"300px"}} zDepth={1}>
-            <table id="control">
-                <tbody>
-                <tr>
-                    <td>
-                        <svg width="88px" height="88px">
-                            <use 
-                                xmlnsXlink="http://www.w3.org/1999/xlink" 
-                                xlinkHref="#rabbit" 
-                                x="22" 
-                                y="22" 
-                                width="44" 
-                                height="44" 
-                                fill={this.isNextPlayer(PlayerType.GreenRabbit)?"green":"gray"}
-                                visibility={this.isPlayer(PlayerType.GreenRabbit)?"visible":"hidden"} />
-                        </svg>
-                    </td>
-                    <td><RaisedButton style={{height:88}} icon={<UpArrow/>} primary={true} onClick={()=>this.props.actions.onMoveUp()}/></td>
-                    <td>
-                        <svg width="88px" height="88px">
-                            <use 
-                                xmlnsXlink="http://www.w3.org/1999/xlink" 
-                                xlinkHref="#mouse" 
-                                x="22" 
-                                y="22" 
-                                width="44" 
-                                height="44" 
-                                fill={this.isNextPlayer(PlayerType.RedMouse)?"red":"gray"}
-                                visibility={this.isPlayer(PlayerType.RedMouse)?"visible":"hidden"}/>
-                        </svg>
-                    </td>
-                    </tr>
-                <tr>
-                    <td><RaisedButton style={{height:88}} icon={<LeftArrow/>} primary={true} onClick={()=>this.props.actions.onMoveLeft()}/></td>
-                    <td><RaisedButton style={{height:88}} icon={<HelpIcon/>} secondary={true} onClick={()=>this.props.actions.onListenHint()}/></td>
-                    <td><RaisedButton style={{height:88}} icon={<RightArrow/>} primary={true} onClick={()=>this.props.actions.onMoveRight()}/></td>
-                </tr>
-                <tr>
-                    <td>
-                        <svg width="88px" height="88px">
-                            <use 
-                                xmlnsXlink="http://www.w3.org/1999/xlink" 
-                                xlinkHref="#rabbit" 
-                                x="22" 
-                                y="22" 
-                                width="44" 
-                                height="44" 
-                                fill={this.isNextPlayer(PlayerType.BlueRabbit)?"blue":"gray"}
-                                visibility={this.isPlayer(PlayerType.BlueRabbit)?"visible":"hidden"}/>
-                        </svg>
-                    </td>
-                    <td><RaisedButton style={{height:88}} icon={<DownArrow/>} primary={true} onClick={()=>this.props.actions.onMoveDown()}/></td>
-                    <td>
-                        <svg width="88px" height="88px">
-                            <use 
-                                xmlnsXlink="http://www.w3.org/1999/xlink" 
-                                xlinkHref="#mouse" 
-                                x="22" 
-                                y="22" 
-                                width="44" 
-                                height="44" 
-                                stroke="black" 
-                                strokeWidth="8" 
-                                fill={this.isNextPlayer(PlayerType.YellowMouse)?"Yellow":"gray"}
-                                visibility={this.isPlayer(PlayerType.YellowMouse)?"visible":"hidden"}/>
-                        </svg>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            </Paper>
-            <Paper style={{width:"300px"}} zDepth={1}>
-                <List style={{height:"200px",overflowY:"scroll"}}>
-                    {
-                        this.props.turns.map(_=>_.messages).reduce((x,y)=>x.concat(y)).reverse().map(message=>{
-                            return <ListItem key={"msg:"+message.id} disabled={true} leftAvatar={this.getMessageAvatar(message.icon)}>{message.text}</ListItem>
-                        })
-                    }
-                </List>
-            </Paper>
+            <div>
+                <Paper style={{width:"300px"}} zDepth={1}>
+                    <table id="control">
+                        <tbody>
+                        <tr>
+                            <td>
+                                <svg width="88px" height="88px">
+                                    <use 
+                                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                                        xlinkHref="#rabbit" 
+                                        x="22" 
+                                        y="22" 
+                                        width="44" 
+                                        height="44" 
+                                        fill={this.isNextPlayer(PlayerType.GreenRabbit)?"green":"gray"}
+                                        visibility={this.isPlayer(PlayerType.GreenRabbit)?"visible":"hidden"} />
+                                </svg>
+                            </td>
+                            <td><RaisedButton style={{height:88}} icon={<UpArrow/>} primary={true} onClick={()=>this.props.actions.onMoveUp()}/></td>
+                            <td>
+                                <svg width="88px" height="88px">
+                                    <use 
+                                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                                        xlinkHref="#mouse" 
+                                        x="22" 
+                                        y="22" 
+                                        width="44" 
+                                        height="44" 
+                                        fill={this.isNextPlayer(PlayerType.RedMouse)?"red":"gray"}
+                                        visibility={this.isPlayer(PlayerType.RedMouse)?"visible":"hidden"}/>
+                                </svg>
+                            </td>
+                            </tr>
+                        <tr>
+                            <td><RaisedButton style={{height:88}} icon={<LeftArrow/>} primary={true} onClick={()=>this.props.actions.onMoveLeft()}/></td>
+                            <td><RaisedButton style={{height:88}} icon={<HelpIcon/>} secondary={true} onClick={()=>this.props.actions.onListenHint()}/></td>
+                            <td><RaisedButton style={{height:88}} icon={<RightArrow/>} primary={true} onClick={()=>this.props.actions.onMoveRight()}/></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <svg width="88px" height="88px">
+                                    <use 
+                                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                                        xlinkHref="#rabbit" 
+                                        x="22" 
+                                        y="22" 
+                                        width="44" 
+                                        height="44" 
+                                        fill={this.isNextPlayer(PlayerType.BlueRabbit)?"blue":"gray"}
+                                        visibility={this.isPlayer(PlayerType.BlueRabbit)?"visible":"hidden"}/>
+                                </svg>
+                            </td>
+                            <td><RaisedButton style={{height:88}} icon={<DownArrow/>} primary={true} onClick={()=>this.props.actions.onMoveDown()}/></td>
+                            <td>
+                                <svg width="88px" height="88px">
+                                    <use 
+                                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                                        xlinkHref="#mouse" 
+                                        x="22" 
+                                        y="22" 
+                                        width="44" 
+                                        height="44" 
+                                        stroke="black" 
+                                        strokeWidth="8" 
+                                        fill={this.isNextPlayer(PlayerType.YellowMouse)?"Yellow":"gray"}
+                                        visibility={this.isPlayer(PlayerType.YellowMouse)?"visible":"hidden"}/>
+                                </svg>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </Paper>
+                <Paper style={{width:"300px"}} zDepth={1}>
+                    <List style={{height:"200px",overflowY:"scroll"}}>
+                        {
+                            this.props.turns.map(_=>_.messages).reduce((x,y)=>x.concat(y)).reverse().map(message=>{
+                                return <ListItem key={"msg:"+message.id} disabled={true} leftAvatar={this.getMessageAvatar(message.icon)}>{message.text}</ListItem>
+                            })
+                        }
+                    </List>
+                </Paper>
+            </div>
         </div>
       </MuiThemeProvider>
     );

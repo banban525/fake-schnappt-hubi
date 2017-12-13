@@ -11,7 +11,178 @@ export interface AppState
     hubiPosition:number;
     hubiMoveTiming:number[];
     turns:TurnHistory[];
+    difficulty:Difficulty;
 }
+
+export class Range
+{
+    constructor(start:number, end:number)
+    {
+        this.start = start;
+        this.end = end;
+    }
+    readonly start:number;
+    readonly end:number;
+
+    getLength():number
+    {
+        return this.end-this.start+1;
+    }
+    createClone():Range
+    {
+        return new Range(this.start, this.end);
+    }
+}
+
+interface DifficultyInternal
+{
+    name:string;
+    timeLimit:number;
+    magicDoorCount:number;
+    firstHubiMoveTiming:Range;
+    afterFirstHubiMoveTiming:Range;
+    detailHintPercent:number;
+}
+
+export class Difficulty
+{
+    readonly name:string;
+    readonly timeLimit:number;
+    readonly magicDoorCount:number;
+    readonly firstHubiMoveTiming:Range;
+    readonly afterFirstHubiMoveTiming:Range;
+    readonly detailHintPercent:number;
+
+    constructor(difficulty:DifficultyInternal)
+    {
+        this.name = difficulty.name;
+        this.timeLimit = difficulty.timeLimit;
+        this.magicDoorCount = difficulty.magicDoorCount;
+        this.firstHubiMoveTiming = difficulty.firstHubiMoveTiming;
+        this.afterFirstHubiMoveTiming = difficulty.afterFirstHubiMoveTiming;
+        this.detailHintPercent = difficulty.detailHintPercent;
+    }
+    toJson():DifficultyInternal
+    {
+        return {
+            name:this.name,
+            timeLimit:this.timeLimit,
+            magicDoorCount:this.magicDoorCount,
+            firstHubiMoveTiming:this.firstHubiMoveTiming,
+            afterFirstHubiMoveTiming:this.afterFirstHubiMoveTiming,
+            detailHintPercent:this.detailHintPercent
+        };
+    }
+    createHubiMoveTimingArray():number[]
+    {
+        var firstMoveTiming = Math.floor(Math.random() * this.firstHubiMoveTiming.getLength()) + this.firstHubiMoveTiming.start;
+        var results = [firstMoveTiming];
+        
+        var count = firstMoveTiming;
+        while(count < this.timeLimit)
+        {
+            console.log(this.afterFirstHubiMoveTiming.getLength())
+            
+            var moveTiming = Math.floor(Math.random() * this.afterFirstHubiMoveTiming.getLength()) + this.afterFirstHubiMoveTiming.start
+            results = results.concat(moveTiming);
+            count = results.reduce((x,y)=>x + y);
+        }
+        return results;
+    }
+    createAisleTypeArray():AisleTypes[]
+    {
+        var freePassageCount = 24 - 3 -3 -2 -this.magicDoorCount;
+        var results = []
+        .concat(Array.apply(null, {length:freePassageCount}).map((value:any, index:number)=>AisleTypes.FreePassage))
+        .concat(Array.apply(null, {length:3}).map((value:any, index:number)=>AisleTypes.MouseHole))
+        .concat(Array.apply(null, {length:3}).map((value:any, index:number)=>AisleTypes.RabbitWindow))
+        .concat(Array.apply(null, {length:2}).map((value:any, index:number)=>AisleTypes.Wall))
+        if(this.magicDoorCount >= 1)
+        {
+            results = results.concat([AisleTypes.MagicDoor1]);
+        }
+        if(this.magicDoorCount >= 2)
+        {
+            results = results.concat([AisleTypes.MagicDoor2]);
+        }
+        if(this.magicDoorCount >= 3)
+        {
+            results = results.concat([AisleTypes.MagicDoor3]);
+        }
+
+        return results;
+    }
+
+    changeName(name:string):Difficulty
+    {
+        var json = this.toJson();
+        json.name = name;
+        return new Difficulty(json);
+    }
+    changeTimeLimit(value:number):Difficulty
+    {
+        var json = this.toJson();
+        json.timeLimit = value;
+        return new Difficulty(json);
+    }
+    changeMagicDoorCount(value:number):Difficulty
+    {
+        var json = this.toJson();
+        json.magicDoorCount = value;
+        return new Difficulty(json);
+    }
+    changeFirstHubiMoveTiming(value:Range):Difficulty
+    {
+        var json = this.toJson();
+        json.firstHubiMoveTiming = value;
+        return new Difficulty(json);
+    }
+    changeAfterFirstHubiMoveTiming(value:Range):Difficulty
+    {
+        var json = this.toJson();
+        json.afterFirstHubiMoveTiming = value;
+        return new Difficulty(json);
+    }
+    changeDetailHintPercent(value:number):Difficulty
+    {
+        var json = this.toJson();
+        json.detailHintPercent = value;
+        return new Difficulty(json);
+    }
+    
+    static Easy : Difficulty = new Difficulty({
+        name:"easy", 
+        timeLimit:50,
+        magicDoorCount:1,
+        firstHubiMoveTiming:new Range(5,7),
+        afterFirstHubiMoveTiming:new Range(3,5),
+        detailHintPercent:100});
+    
+    static Normal : Difficulty = new Difficulty({
+        name:"normal", 
+        timeLimit:45,
+        magicDoorCount:2,
+        firstHubiMoveTiming:new Range(5,7),
+        afterFirstHubiMoveTiming:new Range(3,5),
+        detailHintPercent:100});
+    
+    static Hard : Difficulty = new Difficulty({
+        name:"hard", 
+        timeLimit:40,
+        magicDoorCount:3,
+        firstHubiMoveTiming: new Range(4,6),
+        afterFirstHubiMoveTiming:new Range(3,4),
+        detailHintPercent:40});
+    static Invalid : Difficulty = new Difficulty({
+        name:"", 
+        timeLimit:1,
+        magicDoorCount:1,
+        firstHubiMoveTiming:new Range(100,100),
+        afterFirstHubiMoveTiming:new Range(100,100),
+        detailHintPercent:100});
+}
+
+    
 
 export enum PlayerOperations
 {
@@ -127,6 +298,43 @@ export class AppStateController
         newAisles[newAisle.index] = newAisle;
         return new AppStateController(
             objectAssign({}, this.state, {aisleStates:newAisles}));
+    }
+    changeDifficulty(difficulty:Difficulty):AppStateController
+    {
+        return new AppStateController(
+            objectAssign({}, this.state, {difficulty:difficulty}));
+    }
+    resetPlayers(players:PlayerType[]):AppStateController
+    {
+        var newPlayers = players.map(_=>{
+            var position = 0;
+            if(_ === PlayerType.GreenRabbit){position=0;}
+            if(_ === PlayerType.RedMouse){position=3;}
+            if(_ === PlayerType.BlueRabbit){position=12;}
+            if(_ === PlayerType.YellowMouse){position=15;}
+            return new Player(_,position)
+        });
+
+        return new AppStateController(
+            objectAssign({}, this.state, {players:newPlayers}));
+    }
+    resetTileStatus():AppStateController
+    { 
+        var newTileStates = createNewTileStates();
+        return new AppStateController(
+            objectAssign({}, this.state, {tileStates:newTileStates}));
+    }
+    resetHubiStatus(difficulty:Difficulty):AppStateController
+    {
+        var hubiMoveTiming = difficulty.createHubiMoveTimingArray();
+        return new AppStateController(
+            objectAssign({}, this.state, {hubiPosition:-1,hubiMoveTiming:hubiMoveTiming}));
+    }
+    resetTurns(startPlayer:PlayerType):AppStateController
+    {
+        var newTurns = [new TurnHistory(0, startPlayer)];
+        return new AppStateController(
+            objectAssign({}, this.state, {turns:newTurns}));
     }
 
     getAllMessagesCount():number
@@ -666,12 +874,12 @@ export function createMap() : Map
     return result;
 }
 
-export function createNewAisleStates():AisleState[]
+export function createNewAisleStates(difficulty:Difficulty):AisleState[]
 {
     var results = Array.apply(null, {length:24}).map((value:any, index:number)=>new AisleState(index, AisleTypes.FreePassage));
     
     do{
-        var aisleTypes = DifficultyNormal.slice(0, DifficultyNormal.length);
+        var aisleTypes = difficulty.createAisleTypeArray();
         for(var index = 0; index < results.length; index++)
         {
             var aisle = results[index];
@@ -837,12 +1045,13 @@ var initialAppState:AppState =
         new Player(PlayerType.BlueRabbit),
         new Player(PlayerType.YellowMouse)
     ],
-    aisleStates:createNewAisleStates(),
+    aisleStates:createNewAisleStates(Difficulty.Normal),
     tileStates:createNewTileStates(),
-    phase:GamePhase.SearchMagicDoor,
+    phase:GamePhase.Introduction,
     hubiPosition:-1,
     hubiMoveTiming:[4,4,3,3,4,3,3,2,3,4,3,3],
     turns:[new TurnHistory(0, PlayerType.GreenRabbit)],
+    difficulty : Difficulty.Normal,
 };
 initialAppState.players[0].position = 0;
 initialAppState.players[1].position = 3;
@@ -884,9 +1093,13 @@ export class AppActionDispatcher
 export function appReducer(state: AppState = initialAppState, action: any = {type:'none'}):AppState
 {
     var currentPlayer = state.players[0];
-
     switch(action.type)
     {
+        case 'startGame':
+            var difficulty = action.difficulty as Difficulty;
+            var selectedPlayers = action.selectedPlayers as PlayerType[];
+            var startPlayer = action.startPlayer as PlayerType;
+            return onStartGame(state, difficulty,selectedPlayers,startPlayer);
         case 'onMoveUp':
             var nextAisleNo = state.map.Tiles[currentPlayer.position].aisles.up;
             var nextTileNo = state.map.Aisles[nextAisleNo].tiles.up;
@@ -913,6 +1126,20 @@ export function appReducer(state: AppState = initialAppState, action: any = {typ
             return onTest(state);
     }
     return state;    
+}
+
+function onStartGame(state:AppState, difficulty:Difficulty,selectedPlayers:PlayerType[],startPlayer:PlayerType):AppState
+{
+    var index = selectedPlayers.indexOf(startPlayer);
+    var newPlayers = selectedPlayers.slice(index).concat(selectedPlayers.slice(0,index));
+    var stateController = new AppStateController(state)
+        .changeDifficulty(difficulty)
+        .resetPlayers(newPlayers)
+        .changeGamePhase(GamePhase.SearchMagicDoor)
+        .resetTileStatus()
+        .resetHubiStatus(difficulty)
+        .resetTurns(startPlayer)
+    return stateController.toJson();
 }
 
 function onTest(state:AppState):AppState

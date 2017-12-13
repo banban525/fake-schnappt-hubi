@@ -1,5 +1,5 @@
 
-import {createNewAisleStates,AisleState, Tile,Aisle,Player,PlayerType,AisleTypes,appReducer,PlayerOperations, AppState,MessageId,HubiOperations} from './AppReducer';
+import {createNewAisleStates,AisleState, Tile,Aisle,Player,PlayerType,AisleTypes,appReducer,PlayerOperations, AppState,MessageId,HubiOperations,Difficulty} from './AppReducer';
 
 
 describe('Test for App', function() {
@@ -16,7 +16,7 @@ describe('Test for App', function() {
     // });
   
     it('createNewMap', function(){
-        var aisleStates = createNewAisleStates();
+        var aisleStates = createNewAisleStates(Difficulty.Normal);
         aisleStates.map((aisle:AisleState, index:number)=>{
             expect(index).toBe(aisle.index);
         })
