@@ -202,6 +202,57 @@ export enum HubiOperations
     Snapped
 }
 
+
+export enum MessageId
+{
+    // Moved,
+    // MovedShownAisle,
+    OpendMagicDoor,
+    AisleIsFreePassage,
+    AisleIsRabbitWindow_Moved,
+    AisleIsRabbitWindow_NoMoved,
+    AisleIsMouseHole_Moved,
+    AisleIsMouseHole_NoMoved,
+    AisleIsWall,
+    AisleIsMagicDoor,
+    CannotMove,
+    MagicDoorIsBitweenBlackBatAndWhiteBat,
+    MagicDoorIsBitweenBlackBatAndWhiteToad,
+    MagicDoorIsBitweenBlackBatAndWhiteCentipede,
+    MagicDoorIsBitweenBlackCentipedeAndWhiteOwl,
+    MagicDoorIsBitweenBlackCentipedeAndWhiteToad,
+    MagicDoorIsBitweenBlackCentipedeAndWhiteBat,
+    MagicDoorIsBitweenBlackOwlAndWhiteToad,
+    MagicDoorIsBitweenBlackOwlAndWhiteCentipede,
+    MagicDoorIsBitweenBlackToadAndWhiteOwl,
+    MagicDoorIsBitweenBlackToadAndWhiteCentipede,
+    MagicDoorIsBitweenBlackToadAndWhiteBat,
+    MagicDoorIsBitweenBatAndBat,
+    MagicDoorIsBitweenBatAndToad,
+    MagicDoorIsBitweenBatAndCentipede,
+    MagicDoorIsBitweenCentipedeAndOwl,
+    MagicDoorIsBitweenCentipedeAndToad,
+    MagicDoorIsBitweenOwlAndToad,
+    StartSearchHubi,
+    HubiMoved,
+    FindHubi,
+    SnapHubi,
+    Congratulations,
+    HubiIsInBatTile,
+    HubiIsInCentipedeTile,
+    HubiIsInToadTile,
+    HubiIsInOwlTile,
+    HubiIsInBlackBatTile,
+    HubiIsInBlackCentipedeTile,
+    HubiIsInBlackToadTile,
+    HubiIsInBlackOwlTile,
+    HubiIsInWhiteBatTile,
+    HubiIsInWhiteCentipedeTile,
+    HubiIsInWhiteToadTile,
+    HubiIsInWhiteOwlTile,
+    CannotHint,
+}
+
 class TurnHistory
 {
     constructor(no:number, playerType:PlayerType)
@@ -1057,6 +1108,12 @@ initialAppState.players[0].position = 0;
 initialAppState.players[1].position = 3;
 initialAppState.players[2].position = 12;
 initialAppState.players[3].position = 15;
+initialAppState.turns[0] = initialAppState.turns[0].addMessage({
+    icon:MessageIcons.GameMaster,
+    id:0,
+    messageId:MessageId.AisleIsFreePassage,
+    text : getMessage(MessageId.AisleIsFreePassage)
+});
 
 export class AppActionDispatcher
 {
@@ -1167,11 +1224,11 @@ function onListenHubiHint(state:AppState):AppState
     stateController = stateController.updatePlayerOperation(PlayerOperations.ListenHint);
 
     var currentPlayer = stateController.getCurrentPlayer();
-
+    var currentTileType = stateController.state.map.Tiles[currentPlayer.position].type;
     var hintMessageId = getHubiHintMessage(stateController.getHubiTile().type);
     
     stateController = stateController
-        .addMessage(MessageIcons.GameMaster, hintMessageId)
+        .addMessage(getMessageIcon(currentTileType), hintMessageId)
         .changePlayer();
 
 
@@ -1203,12 +1260,13 @@ function onListenAisleHint(state:AppState):AppState
     stateController = stateController.updatePlayerOperation(PlayerOperations.ListenHint);
 
     var currentPlayer = stateController.getCurrentPlayer();
-    
+    var currentTileType = stateController.state.map.Tiles[currentPlayer.position].type;
+
     var hideAndClosedMagicDoors = stateController.getHideMagicDoor();
     if(hideAndClosedMagicDoors.length === 0)
     {
         stateController = stateController
-            .addMessage(MessageIcons.GameMaster, MessageId.CannotHint)
+            .addMessage(getMessageIcon(currentTileType), MessageId.CannotHint)
             .changePlayer();
         return stateController.EndTurn().toJson();
     }
@@ -1219,7 +1277,7 @@ function onListenAisleHint(state:AppState):AppState
     var hintMessageId = getMagicDoorHintMessage(tiles);
 
     stateController = stateController
-        .addMessage(MessageIcons.GameMaster, getMagicDoorHintMessage(tiles))
+        .addMessage(getMessageIcon(currentTileType), getMagicDoorHintMessage(tiles))
         .changePlayer();
 
     return stateController.EndTurn().toJson();
@@ -1249,64 +1307,15 @@ function getMagicDoorHintMessage(tiles:Tile[]):MessageId
     return matchedMessage.messages[messageDetailLevel];
 }
 
-export enum MessageId
-{
-    Moved,
-    MovedShownAisle,
-    OpendMagicDoor,
-    AisleIsFreePassage,
-    AisleIsRabbitWindow_Moved,
-    AisleIsRabbitWindow_NoMoved,
-    AisleIsMouseHole_Moved,
-    AisleIsMouseHole_NoMoved,
-    AisleIsWall,
-    AisleIsMagicDoor,
-    CannotMove,
-    MagicDoorIsBitweenBlackBatAndWhiteBat,
-    MagicDoorIsBitweenBlackBatAndWhiteToad,
-    MagicDoorIsBitweenBlackBatAndWhiteCentipede,
-    MagicDoorIsBitweenBlackCentipedeAndWhiteOwl,
-    MagicDoorIsBitweenBlackCentipedeAndWhiteToad,
-    MagicDoorIsBitweenBlackCentipedeAndWhiteBat,
-    MagicDoorIsBitweenBlackOwlAndWhiteToad,
-    MagicDoorIsBitweenBlackOwlAndWhiteCentipede,
-    MagicDoorIsBitweenBlackToadAndWhiteOwl,
-    MagicDoorIsBitweenBlackToadAndWhiteCentipede,
-    MagicDoorIsBitweenBlackToadAndWhiteBat,
-    MagicDoorIsBitweenBatAndBat,
-    MagicDoorIsBitweenBatAndToad,
-    MagicDoorIsBitweenBatAndCentipede,
-    MagicDoorIsBitweenCentipedeAndOwl,
-    MagicDoorIsBitweenCentipedeAndToad,
-    MagicDoorIsBitweenOwlAndToad,
-    StartSearchHubi,
-    HubiMoved,
-    FindHubi,
-    SnapHubi,
-    Congratulations,
-    HubiIsInBatTile,
-    HubiIsInCentipedeTile,
-    HubiIsInToadTile,
-    HubiIsInOwlTile,
-    HubiIsInBlackBatTile,
-    HubiIsInBlackCentipedeTile,
-    HubiIsInBlackToadTile,
-    HubiIsInBlackOwlTile,
-    HubiIsInWhiteBatTile,
-    HubiIsInWhiteCentipedeTile,
-    HubiIsInWhiteToadTile,
-    HubiIsInWhiteOwlTile,
-    CannotHint,
-}
 
 function getMessage(messageId:MessageId):string
 {
     switch(messageId)
     {
-    case MessageId.Moved:
-        return '移動したよ';
-    case MessageId.MovedShownAisle:
-        return '移動したよ、もう一度移動できるよ';
+    // case MessageId.Moved:
+    //     return '移動したよ';
+    // case MessageId.MovedShownAisle:
+    //     return '移動したよ、もう一度移動できるよ';
     case MessageId.OpendMagicDoor:
         return '魔法の扉が開いた。移動したよ。';
     case MessageId.AisleIsFreePassage:
@@ -1434,6 +1443,31 @@ function getAisleTypeMessageId(aisleType:AisleTypes, canPass:boolean):MessageId
     }
 }
 
+function getMessageIcon(tileType:TileTypes):MessageIcons
+{
+    switch(tileType)
+    {
+        case TileTypes.BlackBat:
+            return MessageIcons.BlackBat;
+        case TileTypes.BlackCentipede:
+            return MessageIcons.BlackCentipede;
+        case TileTypes.BlackOwl:
+            return MessageIcons.BlackOwl;
+        case TileTypes.BlackToad:
+            return MessageIcons.BlackToad;
+        case TileTypes.WhiteBat:
+            return MessageIcons.WhiteBat;
+        case TileTypes.WhiteCentipede:
+            return MessageIcons.WhiteCentipede;
+        case TileTypes.WhiteOwl:
+            return MessageIcons.WhiteOwl;
+        case TileTypes.WhiteToad:
+            return MessageIcons.WhiteToad;
+        default:
+            return MessageIcons.GameMaster;
+    }
+}
+
 
 function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOperation:PlayerOperations):AppState
 {
@@ -1441,6 +1475,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOper
     stateController = stateController.updatePlayerOperation(playerOperation);
     var currentPlayer = stateController.getCurrentPlayer();
     var nextAisle = stateController.getAisleState(nextAisleNo);
+    var currentTileType = state.map.Tiles[currentPlayer.position].type;
 
     if(nextAisle.isClosedMagicDoor())
     {
@@ -1448,7 +1483,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOper
         if(stateController.isPlayerExists(nextTileNo))
         {
             stateController = stateController
-                .addMessage(MessageIcons.GameMaster, MessageId.OpendMagicDoor)
+                .addMessage(getMessageIcon(currentTileType), MessageId.OpendMagicDoor)
                 .updateAisleShown(nextAisle.index, true)
                 .updateAisleType(nextAisle.index, AisleTypes.MagicDoorOpened)
                 .movePlayer(nextTileNo)
@@ -1473,7 +1508,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOper
             //ダブルムーブ
             stateController = stateController
                 .movePlayer(nextTileNo)
-                .addMessage(MessageIcons.GameMaster, MessageId.MovedShownAisle);
+                .addMessage(getMessageIcon(currentTileType), getAisleTypeMessageId(nextAisle.type, true));
             if(stateController.isEndOfGame())
             {
                 // 終了
@@ -1499,7 +1534,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOper
         {
             stateController = stateController
                 .movePlayer(nextTileNo)
-                .addMessage(MessageIcons.GameMaster, MessageId.Moved)
+                .addMessage(getMessageIcon(currentTileType), getAisleTypeMessageId(nextAisle.type, true))
                 .changePlayer();
 
             if(stateController.isEndOfGame())
@@ -1526,7 +1561,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOper
         else
         {
             stateController = stateController
-                .addMessage(MessageIcons.GameMaster, MessageId.CannotMove)
+                .addMessage(getMessageIcon(currentTileType), MessageId.CannotMove)
                 .changePlayer();
 
             // フビの移動
@@ -1543,7 +1578,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOper
         if(currentPlayer.canPass(nextAisle))
         {
             stateController = stateController
-                .addMessage(MessageIcons.GameMaster, getAisleTypeMessageId(nextAisle.type, true))
+                .addMessage(getMessageIcon(currentTileType), getAisleTypeMessageId(nextAisle.type, true))
                 .movePlayer(nextTileNo)
                 .changePlayer()
                 .updateAisleShown(nextAisleNo, true)
@@ -1572,7 +1607,7 @@ function onMove(state:AppState, nextAisleNo:number, nextTileNo:number,playerOper
         else
         {
             stateController = stateController
-                .addMessage(MessageIcons.GameMaster, getAisleTypeMessageId(nextAisle.type, false))
+                .addMessage(getMessageIcon(currentTileType), getAisleTypeMessageId(nextAisle.type, false))
                 .changePlayer()
                 .updateAisleShown(nextAisleNo, true);
             

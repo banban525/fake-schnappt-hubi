@@ -104,10 +104,83 @@ class App extends Component<AppProps> {
     }
     getMessageAvatar(messageIcon: MessageIcons):React.ReactElement<any>
     {
-        if(messageIcon == MessageIcons.WhiteOwl)
+        if(messageIcon == MessageIcons.WhiteOwl || messageIcon == MessageIcons.BlackOwl)
         {
-            return <svg/>
+            return <svg width="88px" height="88px">
+                    <use 
+                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                        xlinkHref="#owl_tile" 
+                        x="0" 
+                        y="0" 
+                        width="44" 
+                        height="44" 
+                        stroke="black" 
+                        strokeWidth="8" 
+                        fill="gray"/>
+                </svg>
         }
+        if(messageIcon == MessageIcons.WhiteCentipede || messageIcon == MessageIcons.BlackCentipede)
+        {
+            return <svg width="88px" height="88px">
+                    <use 
+                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                        xlinkHref="#centipede_tile" 
+                        x="0" 
+                        y="0" 
+                        width="44" 
+                        height="44" 
+                        stroke="black" 
+                        strokeWidth="8" 
+                        fill="gray"/>
+                </svg>
+        }
+        if(messageIcon == MessageIcons.WhiteToad || messageIcon == MessageIcons.BlackToad)
+        {
+            return <svg width="88px" height="88px">
+                    <use 
+                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                        xlinkHref="#toad_tile" 
+                        x="0" 
+                        y="0" 
+                        width="44" 
+                        height="44" 
+                        stroke="black" 
+                        strokeWidth="8" 
+                        fill="gray"/>
+                </svg>
+        }
+        if(messageIcon == MessageIcons.WhiteBat || messageIcon == MessageIcons.BlackBat)
+        {
+            return <svg width="88px" height="88px">
+                    <use 
+                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                        xlinkHref="#bat_tile" 
+                        x="0" 
+                        y="0" 
+                        width="44" 
+                        height="44" 
+                        stroke="black" 
+                        strokeWidth="8" 
+                        fill="gray"/>
+                </svg>
+        }
+        if(messageIcon == MessageIcons.Fubi)
+        {
+            return <svg width="88px" height="88px">
+                    <use 
+                        xmlnsXlink="http://www.w3.org/1999/xlink" 
+                        xlinkHref="#ghost" 
+                        x="0" 
+                        y="0" 
+                        width="44" 
+                        height="44" 
+                        stroke="black" 
+                        strokeWidth="8" 
+                        fill="gray"/>
+                </svg>
+        }
+
+
         return <div></div>
     }
     render() {
@@ -120,7 +193,7 @@ class App extends Component<AppProps> {
                 />
             <div style={{float:"right",width:"400px"}}>
             <ImageDefinition/>
-            <p>{this.props.turns.length}/{30}</p>
+            <p>{this.props.turns.length}/{this.props.difficulty.timeLimit}</p>
             <svg width="400px" height="400px">
                 <polygon points="0,0 0,400 400,400 400,0 0,0 10,10 90,10 90,30 110,30 110,10 190,10 190,30 210,30 210,10 290,10 290,30 310,30 310,10  390,10 390,90 370,90 370,110 390,110 390,190 370,190 370,210 390,210 390,290 370,290 370,310 390,310 390,390  310,390 310,370 290,370 290,390 210,390 210,370 190,370 190,390 110,390 110,370 90,370 90,390  10,390 10,310 30,310 30,290 10,290 10,290 10,210 30,210 30,190 10,190 10,110 30,110 30,90 10,90    10,10 0,0" stroke="black" strokeWidth="1" fill="saddlebrown" />    
                 <polygon points=" 90, 90  90, 70 110, 70 110, 90 130, 90 130,110 110,110 110,130  90,130  90,110  70,110  70, 90  90, 90" stroke="black" strokeWidth="1" fill="saddlebrown" />    
