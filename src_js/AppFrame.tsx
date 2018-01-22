@@ -5,6 +5,7 @@ import getMuiTheme from "material-ui/styles/getMuiTheme";
 import * as injectTapEventPlugin from "react-tap-event-plugin";
 import AppBar from 'material-ui/AppBar';
 import {AppFrameState,AppFrameActionDispatcher} from './AppFrameReducer';
+import ImageDefinition from './icons/ImageDefinition';
 
 import ja_JP from './lang/ja';
 import en_US from './lang/en';
@@ -55,6 +56,7 @@ class AppFrame extends Component<AppFrameProps> {
       <MuiThemeProvider muiTheme={getMuiTheme()}>
       <IntlProvider locale={'ja'} messages={ja_JP}>
         <div>
+          <ImageDefinition/>
             <AppBar
                 title={intl.formatMessage({id:"Common_Title", defaultMessage:"Fake Schnappt Hubi"})}
                 iconClassNameRight="muidocs-icon-navigation-expand-more"
