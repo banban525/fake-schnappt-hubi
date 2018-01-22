@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jasmine": "^2.6.0",
+    "@types/react-intl": "^2.3.3",
     "file-loader": "^1.1.5",
     "jasmine-core": "^2.8.0",
     "karma": "^1.7.1",
@@ -20,6 +21,7 @@
     "karma-phantomjs-launcher": "^1.0.4",
     "karma-webpack": "^2.0.5",
     "npm-run-all": "^4.1.1",
+    "react-intl": "^2.4.0",
     "style-loader": "^0.19.0",
     "ts-loader": "^3.0.2",
     "typescript": "^2.5.3",

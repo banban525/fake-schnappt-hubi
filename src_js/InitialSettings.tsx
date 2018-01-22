@@ -28,10 +28,6 @@ export default class InitialSettings extends Component<InitialSettingsProps> {
     render(){
         return <MuiThemeProvider muiTheme={getMuiTheme()}>
         <div>
-            {this.props.phase !== SettingsPhases.SettingsComplated && <AppBar
-                title="Fake Schnappt Hubi"
-                iconClassNameRight="muidocs-icon-navigation-expand-more"
-                />}
             <Paper style={{width:"300px"}} zDepth={1}>
                 {this.props.phase === SettingsPhases.Start && <Introduction {...this.props}/>}
                 {this.props.phase === SettingsPhases.SelectPlayers && <SelectPlayers {...this.props}/>}

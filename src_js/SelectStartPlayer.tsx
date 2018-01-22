@@ -2,6 +2,8 @@ import * as React from "react";
 import { Component } from "react";
 import RaisedButton from 'material-ui/RaisedButton';
 import {RadioButton,RadioButtonGroup} from 'material-ui/RadioButton';
+import MyIntlLib from './MyIntlLib';
+import MyIntl from './MyIntl';
 
 import {InitialSettingsActionDispatcher,InitialSettingsState} from "./InitialSettingsReducer";
 
@@ -19,7 +21,7 @@ export default class SelectStartPlayer extends Component<SelectStartPlayerProps>
 
     render(){
         return <div>
-            <p>だれからはじめる？</p>
+            <p><MyIntl id="SelectStartPlayer_WhoIsStart"/></p>
             <RadioButtonGroup name="StartPlayer" defaultSelected={this.props.startPlayer}
                 onChange={(event:any,value:string)=>{this.props.actions.changeStartPlayer(value)}}>
                 <RadioButton
@@ -47,7 +49,7 @@ export default class SelectStartPlayer extends Component<SelectStartPlayerProps>
                             fill={"gray"}
                             />
                         </svg>}
-                    label="緑のウサギ"
+                    label={MyIntlLib.format("Common_GreenRabbit")}
                 />
                 <RadioButton
                     value={PlayerType.RedMouse}
@@ -74,8 +76,8 @@ export default class SelectStartPlayer extends Component<SelectStartPlayerProps>
                             fill={"gray"}
                             />
                         </svg>}
-                    label="赤いネズミ"
-                />
+                    label={MyIntlLib.format("Common_RedMouse")}
+                    />
                 <RadioButton
                     value={PlayerType.BlueRabbit}
                     style={{display:this.props.selectedPlayers.filter(_=>_ === PlayerType.BlueRabbit).length !==0?"":"none"}}
@@ -101,8 +103,8 @@ export default class SelectStartPlayer extends Component<SelectStartPlayerProps>
                             fill={"gray"}
                             />
                         </svg>}
-                    label="青いウサギ"
-                />
+                    label={MyIntlLib.format("Common_BlurRabbit")}
+                    />
                 <RadioButton
                     value={PlayerType.YellowMouse}
                     style={{display:this.props.selectedPlayers.filter(_=>_ === PlayerType.YellowMouse).length !==0?"":"none"}}
@@ -131,16 +133,16 @@ export default class SelectStartPlayer extends Component<SelectStartPlayerProps>
                             fill={"gray"}
                             />
                         </svg>}
-                    label="黄色いネズミ"
-                />
+                    label={MyIntlLib.format("Common_YellowMouse")}
+                    />
             </RadioButtonGroup>
-            <p>むずかしさをえらんでね</p>
+            <p><MyIntl id="SelectStartPlayer_SelectDifficulty"/></p>
             <RadioButtonGroup name="difficulty" defaultSelected={this.props.difficulty.name}
                 onChange={(event:any,value:string)=>{this.props.actions.changeDifficulty(value)}}>
-                <RadioButton label="かんたん" value="easy" />
-                <RadioButton label="ふつう" value="normal" />
-                <RadioButton label="むずかしい" value="hard" />
-                <RadioButton label="カスタム" value="custom" />
+                <RadioButton label={MyIntlLib.format("Common_DifficultyEasy")} value="easy" />
+                <RadioButton label={MyIntlLib.format("Common_DifficultyNormal")} value="normal" />
+                <RadioButton label={MyIntlLib.format("Common_DifficultyHard")} value="hard" />
+                <RadioButton label={MyIntlLib.format("Common_DifficultyCustom")} value="custom" />
             </RadioButtonGroup>
             
         <RaisedButton label="Back" style={{ margin: 12}}

@@ -9,6 +9,10 @@ import {appReducer,AppActionDispatcher,AppState} from "./AppReducer";
 import InitialSettings from "./InitialSettings";
 import {InitialSettingsProps} from "./InitialSettings";
 import {initialSettingsReducer,InitialSettingsActionDispatcher,InitialSettingsState,SettingsPhases} from "./InitialSettingsReducer";
+import AppFrame from "./AppFrame";
+import {AppFrameProps} from "./AppFrame";
+import {appFrameReducer,AppFrameActionDispatcher,AppFrameState} from "./AppFrameReducer";
+
 
 import * as objectAssign from 'object-assign';
 
@@ -29,6 +33,20 @@ function mapAppDispatchToProps(dispatch: any):any
     }
 }
 
+function mapAppFrameStateToProps(state : any):AppFrameProps
+{
+    var result = objectAssign({}, state.appFrameReducer) as AppFrameProps;
+    return result;
+}
+
+function mapAppFrameDispatchToProps(dispatch: any):any
+{
+    return {
+        actions:new AppFrameActionDispatcher(dispatch, ()=>(store.getState() as any).appFrameReducer as AppFrameState)
+    }
+}
+
+
 function mapInitialSettingsStateToProps(state : any):InitialSettingsProps
 {
     var result = objectAssign({}, state.initialSettingsReducer) as InitialSettingsProps;
@@ -48,13 +66,18 @@ var AppContainer = connect(
 var InitialSettingsContainer = connect(
     mapInitialSettingsStateToProps,
     mapInitialSettingsDispatchToProps)(InitialSettings)
+var AppFrameContainer = connect(
+    mapAppFrameStateToProps,
+    mapAppFrameDispatchToProps)(AppFrame)
     
   
 ReactDOM.render(
     <Provider store={store}>
         <div>
-        <InitialSettingsContainer />
-        <AppContainer />
+            <AppFrameContainer>
+                <InitialSettingsContainer />
+                <AppContainer />
+            </AppFrameContainer>
         </div>
     </Provider>
     ,document.getElementById("app")

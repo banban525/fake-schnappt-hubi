@@ -7,6 +7,9 @@ import MenuItem from 'material-ui/MenuItem';
 import Slider from 'material-ui/Slider';
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
+import MyIntlLib from './MyIntlLib';
+import MyIntl from './MyIntl';
+
 import {InitialSettingsActionDispatcher, InitialSettingsState,ErrorMessageId} from "./InitialSettingsReducer";
 
 import {AppActionDispatcher, AppState,Aisle,AisleTypes,Player,PlayerType,AisleState,MessageIcons,GamePhase} from './AppReducer';
@@ -27,13 +30,13 @@ export default class CustomizeDifficulty extends Component<CustomizeDifficultyPr
             case ErrorMessageId.None:
                 return "";
             case ErrorMessageId.CanInputNumberGreaterThanZero:
-                return "0よりおおきいすうじをいれてね";
+                return MyIntlLib.format("CustomizeDifficulty_CanInputNumberGreaterThanZero");
         }
         return "";
     }
     render(){
         return <div>
-            <p>せいげんじかん</p>
+            <p><MyIntl id="CustomizeDifficulty_TimeLimit"/></p>
             <div>
                 <div style={{display: "inline-block", width:"70%", verticalAlign:"top"}}>
                     <Slider
@@ -52,7 +55,7 @@ export default class CustomizeDifficulty extends Component<CustomizeDifficultyPr
                     />
                 </div>
             </div>
-            <p>まほうのとびらのかず</p>
+            <p><MyIntl id="CustomizeDifficulty_CountOfMagicDoor"/></p>
             <SelectField
                 value={this.props.difficulty.magicDoorCount}
                 onChange={(event, index, value)=>this.props.actions.changeMagicDoorCount(value)}
@@ -63,7 +66,7 @@ export default class CustomizeDifficulty extends Component<CustomizeDifficultyPr
                 <MenuItem value={4} primaryText="4" />
                 <MenuItem value={5} primaryText="5" />
             </SelectField>
-            <p>はじめにフビがいどうするじかん</p>
+            <p><MyIntl id="CustomizeDifficulty_firstHubiMoveTiming"/></p>
             <div>
                 <div style={{display: "inline-block", width:"45%"}}>
                     <TextField
@@ -85,7 +88,7 @@ export default class CustomizeDifficulty extends Component<CustomizeDifficultyPr
                         />
                 </div>
             </div>
-            <p>2かいめいこうにフビがいどうするじかん</p>
+            <p><MyIntl id="CustomizeDifficulty_afterFirstHubiMoveTiming"/></p>
             <div>
                 <div style={{display: "inline-block", width:"45%"}}>
                     <TextField
@@ -107,7 +110,7 @@ export default class CustomizeDifficulty extends Component<CustomizeDifficultyPr
                     />
                 </div>
             </div>
-            <p>くわしいヒントをだすわりあい</p>
+            <p><MyIntl id="CustomizeDifficulty_detailHintPercent"/></p>
             <div>
                 <div style={{display: "inline-block", width:"70%", verticalAlign:"top"}}>
                     <Slider

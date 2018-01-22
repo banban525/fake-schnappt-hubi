@@ -3,6 +3,7 @@ import { Component } from "react";
 import RaisedButton from 'material-ui/RaisedButton';
 import SelectField from 'material-ui/SelectField';
 import {InitialSettingsActionDispatcher,InitialSettingsState} from "./InitialSettingsReducer";
+import MyIntl from './MyIntl';
 
 export interface IntroductionProps extends InitialSettingsState
 {
@@ -17,11 +18,20 @@ export default class Introduction extends Component<IntroductionProps> {
     render(){
         return <div>
             
-            <RaisedButton label="はじめてのゲーム" style={{ margin: 12}}
+            <RaisedButton label={
+                <MyIntl
+                    id="Introduction_NewGame" />} 
+                style={{ margin: 12}}
                 onClick={()=>this.props.actions.StartNewGame()}/>
-            <RaisedButton label="まえとおなじなんいどではじめる" primary={true} style={{ margin: 12}} disabled={!this.props.canStartSameSettingGame}
+            <RaisedButton label={
+                <MyIntl
+                    id="Introduction_NewGameWithSameSettings"/>}
+                primary={true} style={{ margin: 12}} disabled={!this.props.canStartSameSettingGame}
                 onClick={()=>this.props.actions.StartSameSettingGame()}/>
-            <RaisedButton label="つづきからはじめる" primary={true} style={{ margin: 12}} disabled={!this.props.canContinueGame}
+            <RaisedButton label={
+                <MyIntl
+                    id="Introduction_Continue"/>}
+                primary={true} style={{ margin: 12}} disabled={!this.props.canContinueGame}
                 onClick={()=>this.props.actions.ContinuePreviousGame()}/>
             </div>
     }

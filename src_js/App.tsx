@@ -25,10 +25,7 @@ import SelectStartPlayer from './SelectStartPlayer';
 import CustomizeDifficulty from './CustomizeDifficulty';
 
 import {AppActionDispatcher, AppState,Aisle,AisleTypes,Player,PlayerType,AisleState,MessageIcons,GamePhase} from './AppReducer';
-
-// Needed for onTouchTap 
-// http://stackoverflow.com/a/34015469/988941 
-injectTapEventPlugin();
+import {addLocaleData,IntlProvider,FormattedMessage} from 'react-intl';
 
 
 
@@ -185,12 +182,7 @@ class App extends Component<AppProps> {
     }
     render() {
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme()}>
         <div>
-            <AppBar
-                title="Fake Schnappt Hubi"
-                iconClassNameRight="muidocs-icon-navigation-expand-more"
-                />
             <div style={{float:"right",width:"400px"}}>
             <ImageDefinition/>
             <p>{this.props.turns.length}/{this.props.difficulty.timeLimit}</p>
@@ -375,7 +367,6 @@ class App extends Component<AppProps> {
                 </Paper>
             </div>
         </div>
-      </MuiThemeProvider>
     );
   }
 
