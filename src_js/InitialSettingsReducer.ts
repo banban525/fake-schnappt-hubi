@@ -272,12 +272,16 @@ export function initialSettingsReducer(state: InitialSettingsState = initialStat
       {
         case "easy":
           newDifficulty = Difficulty.Easy;
+          break;
         case "normal":
           newDifficulty = Difficulty.Normal;
+          break;
         case "hard":
           newDifficulty = Difficulty.Hard;
+          break;
         case "custom":
           newDifficulty = Difficulty.Normal.changeName("custom");
+          break;
       }
       return objectAssign({}, state, {difficulty:newDifficulty});       
     case "changeTimeLimit":
