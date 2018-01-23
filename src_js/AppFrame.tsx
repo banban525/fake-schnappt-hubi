@@ -13,12 +13,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import SelectField from 'material-ui/SelectField';
+import TextField from 'material-ui/TextField';
 
 import ja_JP from './lang/ja';
 import en_US from './lang/en';
 import * as en from 'react-intl/locale-data/en';
 import * as ja from 'react-intl/locale-data/ja';
 import {addLocaleData,IntlProvider,FormattedMessage} from 'react-intl';
+import check from "material-ui/svg-icons/navigation/check";
 addLocaleData([...en,...ja]);
 const intlProvider = new IntlProvider({ locale:"ja",messages:ja_JP }, {});
 const { intl } = intlProvider.getChildContext();
@@ -77,6 +79,7 @@ class AppFrame extends Component<AppFrameProps> {
             <MenuItem onClick={()=>{this.props.actions.changeDrawerState(false)}}>Back to Game</MenuItem>
             <MenuItem onClick={()=>{this.props.actions.backToStart()}}>Back to start</MenuItem>
             <MenuItem onClick={()=>{this.props.actions.openSettings()}}>Settings</MenuItem>
+            <MenuItem onClick={()=>{this.props.actions.toggleDebugMode()}} checked={this.props.debugMode}>Debug Mode</MenuItem>
           </Drawer>
           <Dialog
             title="Settings"
@@ -103,6 +106,31 @@ class AppFrame extends Component<AppFrameProps> {
             <MenuItem value={"ja"} primaryText="にほんご" />
             <MenuItem value={"en"} primaryText="English" />
           </SelectField>
+        </Dialog>
+        <Dialog
+            title="Password"
+            actions={[(
+              <FlatButton 
+                label="Cancel" 
+                primary={false}
+                onClick={()=>{this.props.actions.passwordDialogCancel()}}/>
+              ),(
+              <FlatButton 
+                label="OK" 
+                primary={true}
+                onClick={()=>{this.props.actions.passwordDialogOk()}}/>
+                )]}
+            modal={true}
+            open={this.props.passwordDialogOpened}
+          >
+          <p>Password for Debug</p>
+          <TextField
+            hintText="Password"
+            floatingLabelText="Password"
+            type="password"
+            value={this.props.passwordForDebug}
+            onChange={(e: React.FormEvent<{}>, newValue: string)=>{this.props.actions.changePasswordForDebug(newValue)}}
+          />          
         </Dialog>
         </div>
         </IntlProvider>

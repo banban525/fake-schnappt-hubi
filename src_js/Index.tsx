@@ -22,7 +22,7 @@ store.subscribe(() => console.log(store.getState()));
 
 function mapAppStateToProps(state : any):AppProps
 {
-    var result = objectAssign({}, state.appReducer) as AppProps;
+    var result = objectAssign({}, state.appReducer, {debugMode:state.appFrameReducer.debugMode as boolean}) as AppProps;
     return result;
 }
 

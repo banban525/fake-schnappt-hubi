@@ -7,6 +7,9 @@ export interface AppFrameState
   settingsDialogOpened:boolean;
   settingsSelectedLanguage:string;
   language:string;
+  passwordDialogOpened:boolean;
+  passwordForDebug:string;
+  debugMode:boolean;
 }
 
 export class AppFrameActionDispatcher
@@ -36,13 +39,28 @@ export class AppFrameActionDispatcher
   backToStart():void{
     this.dispatch({type:"backToStart"});
   }
+  toggleDebugMode():void{
+    this.dispatch({type:"toggleDebugMode"});
+  }
+  passwordDialogCancel():void{
+    this.dispatch({type:"passwordDialogCancel"});
+  }
+  passwordDialogOk():void{
+    this.dispatch({type:"passwordDialogOk"});
+  }
+  changePasswordForDebug(newValue:string):void{
+    this.dispatch({type:"changePasswordForDebug", payload:newValue});
+  }
 }
 
 const initialState:AppFrameState={
   drawOpened:false,
   settingsDialogOpened:false,
   settingsSelectedLanguage:"ja",
-  language:"ja"
+  language:"ja",
+  debugMode:false,
+  passwordDialogOpened:false,
+  passwordForDebug:""
 };
 
 export function appFrameReducer(state: AppFrameState = initialState, action: any = {type:'none'}):AppFrameState
@@ -61,6 +79,28 @@ export function appFrameReducer(state: AppFrameState = initialState, action: any
       return objectAssign({}, state, {settingsSelectedLanguage:action.payload});
     case "backToStart":
       return objectAssign({}, state, {drawOpened:false});
+    case "toggleDebugMode":
+      if(state.debugMode)
+      {
+        return objectAssign({}, state, {debugMode:false});
+      }
+      else
+      {
+        return objectAssign({}, state, {passwordDialogOpened:true});
+      }
+    case "passwordDialogCancel":
+      return objectAssign({}, state, {passwordDialogOpened:false,passwordForDebug:"",drawOpened:false});
+    case "passwordDialogOk":
+      if(state.passwordForDebug === "admin")
+      {
+        return objectAssign({}, state, {debugMode:true, passwordForDebug:"", passwordDialogOpened:false,drawOpened:false});
+      }
+      else
+      {
+        return objectAssign({}, state, {passwordForDebug:""});
+      }
+    case "changePasswordForDebug":
+      return objectAssign({}, state, {passwordForDebug:action.payload});
   }
     return state;
 }

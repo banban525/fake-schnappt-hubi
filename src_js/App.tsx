@@ -32,6 +32,7 @@ import {addLocaleData,IntlProvider,FormattedMessage} from 'react-intl';
 export interface AppProps extends AppState
 {
   actions?:AppActionDispatcher;
+  debugMode:boolean;
 //   children?:JSX.Element;
 //   history?:H.History;
 }
@@ -189,7 +190,7 @@ class App extends Component<AppProps> {
         {
     return (
         <div>
-            <div style={{float:"right",width:"400px"}}>
+            <div style={{float:"right",width:"400px",display:this.props.debugMode?"":"none"}}>
             <p>{this.props.turns.length}/{this.props.difficulty.timeLimit}</p>
             <svg width="400px" height="400px">
                 <polygon points="0,0 0,400 400,400 400,0 0,0 10,10 90,10 90,30 110,30 110,10 190,10 190,30 210,30 210,10 290,10 290,30 310,30 310,10  390,10 390,90 370,90 370,110 390,110 390,190 370,190 370,210 390,210 390,290 370,290 370,310 390,310 390,390  310,390 310,370 290,370 290,390 210,390 210,370 190,370 190,390 110,390 110,370 90,370 90,390  10,390 10,310 30,310 30,290 10,290 10,290 10,210 30,210 30,190 10,190 10,110 30,110 30,90 10,90    10,10 0,0" stroke="black" strokeWidth="1" fill="saddlebrown" />    
