@@ -16,7 +16,7 @@ import {appFrameReducer,AppFrameActionDispatcher,AppFrameState} from "./AppFrame
 
 import * as objectAssign from 'object-assign';
 
-const rootReducer = combineReducers({ appReducer, initialSettingsReducer });
+const rootReducer = combineReducers({ appReducer, initialSettingsReducer,appFrameReducer });
 const store = createStore(rootReducer);
 store.subscribe(() => console.log(store.getState()));
 

@@ -334,6 +334,8 @@ export function initialSettingsReducer(state: InitialSettingsState = initialStat
     case "changeDetailHintPercent":
       var newValue = action.value as number;
       return objectAssign({}, state, {difficulty:state.difficulty.changeDetailHintPercent(newValue)});
+    case "backToStart":
+      return objectAssign({}, state, {phase:SettingsPhases.Start});
     }
     return state;    
 }

@@ -7,6 +7,13 @@ import AppBar from 'material-ui/AppBar';
 import {AppFrameState,AppFrameActionDispatcher} from './AppFrameReducer';
 import ImageDefinition from './icons/ImageDefinition';
 
+import Drawer from 'material-ui/Drawer';
+import MenuItem from 'material-ui/MenuItem';
+import RaisedButton from 'material-ui/RaisedButton';
+import FlatButton from 'material-ui/FlatButton';
+import Dialog from 'material-ui/Dialog';
+import SelectField from 'material-ui/SelectField';
+
 import ja_JP from './lang/ja';
 import en_US from './lang/en';
 import * as en from 'react-intl/locale-data/en';
@@ -60,8 +67,43 @@ class AppFrame extends Component<AppFrameProps> {
             <AppBar
                 title={intl.formatMessage({id:"Common_Title", defaultMessage:"Fake Schnappt Hubi"})}
                 iconClassNameRight="muidocs-icon-navigation-expand-more"
+                onLeftIconButtonTouchTap={()=>this.props.actions.changeDrawerState(true)}
                 />
           {this.props.children}
+          <Drawer 
+            open={this.props.drawOpened} 
+            docked={false}
+            onRequestChange={(open) => this.props.actions.changeDrawerState(open)}>
+            <MenuItem onClick={()=>{this.props.actions.changeDrawerState(false)}}>Back to Game</MenuItem>
+            <MenuItem onClick={()=>{this.props.actions.backToStart()}}>Back to start</MenuItem>
+            <MenuItem onClick={()=>{this.props.actions.openSettings()}}>Settings</MenuItem>
+          </Drawer>
+          <Dialog
+            title="Settings"
+            actions={[(
+              <FlatButton 
+                label="Cancel" 
+                primary={false}
+                onClick={()=>{this.props.actions.settingsCancel()}}/>
+              ),(
+              <FlatButton 
+                label="OK" 
+                primary={true}
+                onClick={()=>{this.props.actions.settingsOk()}}/>
+                )]}
+            modal={true}
+            open={this.props.settingsDialogOpened}
+          >
+          <p>げんごをきりかえるよ / Select lnaguage</p>
+          <SelectField
+            floatingLabelText="Language"
+            value={this.props.settingsSelectedLanguage}
+            onChange={(e: any, index: number, menuItemValue: string)=>this.props.actions.changeSettingsSelectedLanguage(menuItemValue)}
+          >
+            <MenuItem value={"ja"} primaryText="にほんご" />
+            <MenuItem value={"en"} primaryText="English" />
+          </SelectField>
+        </Dialog>
         </div>
         </IntlProvider>
       </MuiThemeProvider>

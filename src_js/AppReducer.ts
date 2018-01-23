@@ -1181,6 +1181,9 @@ export function appReducer(state: AppState = initialAppState, action: any = {typ
             return onListenHint(state);
         case 'onTest':
             return onTest(state);
+        case 'backToStart':
+          return objectAssign({}, state, {phase:GamePhase.Introduction});
+
     }
     return state;    
 }
