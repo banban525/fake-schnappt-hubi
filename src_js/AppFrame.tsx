@@ -15,6 +15,8 @@ import Dialog from 'material-ui/Dialog';
 import SelectField from 'material-ui/SelectField';
 import TextField from 'material-ui/TextField';
 
+import MyIntlLib from './MyIntlLib';
+
 import ja_JP from './lang/ja';
 import en_US from './lang/en';
 import * as en from 'react-intl/locale-data/en';
@@ -22,8 +24,6 @@ import * as ja from 'react-intl/locale-data/ja';
 import {addLocaleData,IntlProvider,FormattedMessage} from 'react-intl';
 import check from "material-ui/svg-icons/navigation/check";
 addLocaleData([...en,...ja]);
-const intlProvider = new IntlProvider({ locale:"ja",messages:ja_JP }, {});
-const { intl } = intlProvider.getChildContext();
 
 // Needed for onTouchTap 
 // http://stackoverflow.com/a/34015469/988941 
@@ -63,11 +63,11 @@ class AppFrame extends Component<AppFrameProps> {
   render() {
     return (
       <MuiThemeProvider muiTheme={getMuiTheme()}>
-      <IntlProvider locale={'ja'} messages={ja_JP}>
+      <IntlProvider locale={this.props.language} messages={this.props.localizedMessages}>
         <div>
           <ImageDefinition/>
             <AppBar
-                title={intl.formatMessage({id:"Common_Title", defaultMessage:"Fake Schnappt Hubi"})}
+                title={MyIntlLib.format("Common_Title")}
                 iconClassNameRight="muidocs-icon-navigation-expand-more"
                 onLeftIconButtonTouchTap={()=>this.props.actions.changeDrawerState(true)}
                 />

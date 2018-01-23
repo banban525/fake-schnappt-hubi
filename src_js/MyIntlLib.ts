@@ -30,6 +30,10 @@ export class MyIntlLib
         {
             props = { locale:"en",messages:en_US };
         }
+        else
+        {
+            return;
+        }
 
         const intlProvider = new IntlProvider(props, {});
         var temp = intlProvider.getChildContext();

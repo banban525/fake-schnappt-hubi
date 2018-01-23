@@ -1,5 +1,9 @@
 import star from "material-ui/svg-icons/toggle/star";
 import * as objectAssign from "object-assign";
+import MyIntlLib from "./MyIntlLib";
+import ja_JP from './lang/ja';
+import en_US from './lang/en';
+import message from "material-ui/svg-icons/communication/message";
 
 export interface AppFrameState
 {
@@ -7,6 +11,7 @@ export interface AppFrameState
   settingsDialogOpened:boolean;
   settingsSelectedLanguage:string;
   language:string;
+  localizedMessages:any;
   passwordDialogOpened:boolean;
   passwordForDebug:string;
   debugMode:boolean;
@@ -58,6 +63,7 @@ const initialState:AppFrameState={
   settingsDialogOpened:false,
   settingsSelectedLanguage:"ja",
   language:"ja",
+  localizedMessages:ja_JP,
   debugMode:false,
   passwordDialogOpened:false,
   passwordForDebug:""
@@ -72,7 +78,17 @@ export function appFrameReducer(state: AppFrameState = initialState, action: any
     case "openSettings":
       return objectAssign({}, state, {settingsDialogOpened:true, settingsSelectedLanguage:state.language});
     case "settingsOk":
-      return objectAssign({}, state, {drawOpened:false, settingsDialogOpened:false, language:state.settingsSelectedLanguage});
+      MyIntlLib.changeLocale(state.settingsSelectedLanguage);
+      var localizedMessages:any = ja_JP;
+      if(state.settingsSelectedLanguage === "ja")
+      {
+        localizedMessages = ja_JP;
+      }
+      else if(state.settingsSelectedLanguage === "en")
+      {
+        localizedMessages=en_US;
+      }
+      return objectAssign({}, state, {drawOpened:false, settingsDialogOpened:false, language:state.settingsSelectedLanguage,localizedMessages:localizedMessages});
     case "settingsCancel":
       return objectAssign({}, state, {drawOpened:false, settingsDialogOpened:false});
     case "changeSettingsSelectedLanguage":
