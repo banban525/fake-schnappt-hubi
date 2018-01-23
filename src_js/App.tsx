@@ -205,37 +205,37 @@ class App extends Component<AppProps> {
                 <polygon points="190,290 190,270 210,270 210,290 230,290 230,310 210,310 210,330 190,330 190,310 170,310 170,290 190,290" stroke="black" strokeWidth="1" fill="saddlebrown" />    
                 <polygon points="290,290 290,270 310,270 310,290 330,290 330,310 310,310 310,330 290,330 290,310 270,310 270,290 290,290" stroke="black" strokeWidth="1" fill="saddlebrown" />    
 
-                <rect id="tile_00" x=" 10" y=" 10" width="80" height="80" fill="gray"/>
-                <rect id="tile_01" x="110" y=" 10" width="80" height="80" fill="gray"/>
-                <rect id="tile_02" x="210" y=" 10" width="80" height="80" fill="gray"/>
-                <rect id="tile_03" x="310" y=" 10" width="80" height="80" fill="gray"/>
-                <rect id="tile_04" x=" 10" y="110" width="80" height="80" fill="gray"/>
+                <rect id="tile_00" x= "10" y= "10" width="80" height="80" fill="gray"/>
+                <rect id="tile_01" x="110" y= "10" width="80" height="80" fill="gray"/>
+                <rect id="tile_02" x="210" y= "10" width="80" height="80" fill="gray"/>
+                <rect id="tile_03" x="310" y= "10" width="80" height="80" fill="gray"/>
+                <rect id="tile_04" x= "10" y="110" width="80" height="80" fill="gray"/>
                 <rect id="tile_05" x="110" y="110" width="80" height="80" fill="gray"/>
                 <rect id="tile_06" x="210" y="110" width="80" height="80" fill="gray"/>
                 <rect id="tile_07" x="310" y="110" width="80" height="80" fill="gray"/>
-                <rect id="tile_08" x=" 10" y="210" width="80" height="80" fill="gray"/>
+                <rect id="tile_08" x= "10" y="210" width="80" height="80" fill="gray"/>
                 <rect id="tile_09" x="110" y="210" width="80" height="80" fill="gray"/>
                 <rect id="tile_10" x="210" y="210" width="80" height="80" fill="gray"/>
                 <rect id="tile_11" x="310" y="210" width="80" height="80" fill="gray"/>
-                <rect id="tile_12" x=" 10" y="310" width="80" height="80" fill="gray"/>
+                <rect id="tile_12" x= "10" y="310" width="80" height="80" fill="gray"/>
                 <rect id="tile_13" x="110" y="310" width="80" height="80" fill="gray"/>
                 <rect id="tile_14" x="210" y="310" width="80" height="80" fill="gray"/>
                 <rect id="tile_15" x="310" y="310" width="80" height="80" fill="gray"/>
 
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x=" 10" y=" 10" fill="white"/>
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x="310" y=" 10" fill="black"/>
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x=" 10" y="310" fill="black"/>
+                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x= "10" y= "10" fill="white"/>
+                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x="310" y= "10" fill="black"/>
+                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x= "10" y="310" fill="black"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#owl_tile"  x="310" y="310" fill="white"/>
                 
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#centipede_tile" x="110" y=" 10" fill="black"/>
+                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#centipede_tile" x="110" y= "10" fill="black"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#centipede_tile" x="310" y="110" fill="white"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#centipede_tile" x="210" y="310" fill="black"/>
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#centipede_tile" x=" 10" y="210" fill="white"/>
+                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#centipede_tile" x= "10" y="210" fill="white"/>
 
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#toad_tile" x="210" y=" 10" fill="white"/>
+                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#toad_tile" x="210" y= "10" fill="white"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#toad_tile" x="310" y="210" fill="black"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#toad_tile" x="110" y="310" fill="white"/>
-                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#toad_tile" x=" 10" y="110" fill="black"/>
+                <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#toad_tile" x= "10" y="110" fill="black"/>
 
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#bat_tile"  x="110" y="110" fill="white"/>
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#bat_tile"  x="110" y="210" fill="black"/>
@@ -243,34 +243,34 @@ class App extends Component<AppProps> {
                 <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#bat_tile"  x="210" y="210" fill="white"/>
 
 
-                <rect id="aisle_00" x=" 90" y=" 30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[0])} />
-                <rect id="aisle_01" x="190" y=" 30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[1])} />
-                <rect id="aisle_02" x="290" y=" 30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[2])} />
+                <rect id="aisle_00" x= "90" y= "30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[0])} />
+                <rect id="aisle_01" x="190" y= "30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[1])} />
+                <rect id="aisle_02" x="290" y= "30" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[2])} />
                 
-                <rect id="aisle_03" x=" 90" y="130" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[3])} />
+                <rect id="aisle_03" x= "90" y="130" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[3])} />
                 <rect id="aisle_04" x="190" y="130" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[4])} />
                 <rect id="aisle_05" x="290" y="130" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[5])} />
                 
-                <rect id="aisle_06" x=" 90" y="230" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[6])} />
+                <rect id="aisle_06" x= "90" y="230" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[6])} />
                 <rect id="aisle_07" x="190" y="230" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[7])} />
                 <rect id="aisle_08" x="290" y="230" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[8])} />
                 
-                <rect id="aisle_09" x=" 90" y="330" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[9])} />
+                <rect id="aisle_09" x= "90" y="330" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[9])} />
                 <rect id="aisle_10" x="190" y="330" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[10])} />
                 <rect id="aisle_11" x="290" y="330" width="20" height="40" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[11])} />
 
                 
-                <rect id="aisle_12" x=" 30" y=" 90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[12])} />
-                <rect id="aisle_13" x="130" y=" 90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[13])} />
-                <rect id="aisle_14" x="230" y=" 90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[14])} />
-                <rect id="aisle_15" x="330" y=" 90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[15])} />
+                <rect id="aisle_12" x= "30" y= "90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[12])} />
+                <rect id="aisle_13" x="130" y= "90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[13])} />
+                <rect id="aisle_14" x="230" y= "90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[14])} />
+                <rect id="aisle_15" x="330" y= "90" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[15])} />
 
-                <rect id="aisle_16" x=" 30" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[16])} />
+                <rect id="aisle_16" x= "30" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[16])} />
                 <rect id="aisle_17" x="130" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[17])} />
                 <rect id="aisle_18" x="230" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[18])} />
                 <rect id="aisle_19" x="330" y="190" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[19])} />
 
-                <rect id="aisle_20" x=" 30" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[20])} />
+                <rect id="aisle_20" x= "30" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[20])} />
                 <rect id="aisle_21" x="130" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[21])} />
                 <rect id="aisle_22" x="230" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[22])} />
                 <rect id="aisle_23" x="330" y="290" width="40" height="20" stroke="black" strokeWidth="1" fill={this.getAisleColor(this.props.aisleStates[23])} />
