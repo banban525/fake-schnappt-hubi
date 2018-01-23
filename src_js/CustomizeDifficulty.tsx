@@ -129,9 +129,9 @@ export default class CustomizeDifficulty extends Component<CustomizeDifficultyPr
                     />
                 </div>
             </div>
-            <RaisedButton label="Back" style={{ margin: 12}}
+            <RaisedButton label={MyIntlLib.format("Common_Previous")} style={{ margin: 12}}
                 onClick={()=>this.props.actions.moveBack()}/>
-            <RaisedButton label="Next" primary={true} style={{ margin: 12}}
+            <RaisedButton label={MyIntlLib.format("Common_Next")} primary={true} style={{ margin: 12}}
                 onClick={()=>this.props.actions.moveNext()}/>
         </div>
     }

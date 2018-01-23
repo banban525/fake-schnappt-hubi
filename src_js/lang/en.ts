@@ -8,6 +8,8 @@ const en_US = {
     Common_DifficultyNormal: "Normal",
     Common_DifficultyHard:   "Hard",
     Common_DifficultyCustom: "Custom",
+    Common_Next:        "Next",
+    Common_Previous:    "Back",
     SelectPlayers_PlayerIsLessThanTow:    "Player is less than two.",
     SelectPlayers_CannotSelectMouseOnly:  "Can not select moues only.",
     SelectPlayers_CannotSelectRabbitOnly: "Can not select rabbit only.",

@@ -151,9 +151,9 @@ export default class SelectPlayers extends Component<SelectPlayersProps> {
                 checked={this.props.selectedPlayers.filter(_=>_ === PlayerType.YellowMouse).length > 0}
             />
             <p style={{color:"red"}}>{this.getErrorMessage(this.props.errorMessage)}</p>
-            <RaisedButton label="Back" style={{ margin: 12}}
+            <RaisedButton label={MyIntlLib.format("Common_Previous")} style={{ margin: 12}}
                 onClick={()=>this.props.actions.moveBack()}/>
-            <RaisedButton label="Next" primary={true} style={{ margin: 12}}
+            <RaisedButton label={MyIntlLib.format("Common_Next")} primary={true} style={{ margin: 12}}
                 onClick={()=>this.props.actions.moveNext()}/>
             </div>
     }

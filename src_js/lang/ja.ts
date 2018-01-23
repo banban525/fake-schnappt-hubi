@@ -8,6 +8,8 @@ const ja = {
     Common_DifficultyNormal: "ふつう",
     Common_DifficultyHard:   "むずかしい",
     Common_DifficultyCustom: "カスタム",
+    Common_Next:        "つぎへ",
+    Common_Previous:    "もどる",
     SelectPlayers_PlayerIsLessThanTow:    "ふたりいないとゲームできないよ",
     SelectPlayers_CannotSelectMouseOnly:  "ネズミだけじゃゲームできないよ",
     SelectPlayers_CannotSelectRabbitOnly: "うさぎだけじゃゲームできないよ",
