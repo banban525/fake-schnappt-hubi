@@ -1,5 +1,6 @@
 import * as objectAssign from 'object-assign';
 import * as immutable from 'immutable';
+import MyIntlLib from './MyIntlLib';
 
 export interface AppState
 {
@@ -203,55 +204,101 @@ export enum HubiOperations
 }
 
 
-export enum MessageId
-{
-    // Moved,
-    // MovedShownAisle,
-    OpendMagicDoor,
-    AisleIsFreePassage,
-    AisleIsRabbitWindow_Moved,
-    AisleIsRabbitWindow_NoMoved,
-    AisleIsMouseHole_Moved,
-    AisleIsMouseHole_NoMoved,
-    AisleIsWall,
-    AisleIsMagicDoor,
-    CannotMove,
-    MagicDoorIsBitweenBlackBatAndWhiteBat,
-    MagicDoorIsBitweenBlackBatAndWhiteToad,
-    MagicDoorIsBitweenBlackBatAndWhiteCentipede,
-    MagicDoorIsBitweenBlackCentipedeAndWhiteOwl,
-    MagicDoorIsBitweenBlackCentipedeAndWhiteToad,
-    MagicDoorIsBitweenBlackCentipedeAndWhiteBat,
-    MagicDoorIsBitweenBlackOwlAndWhiteToad,
-    MagicDoorIsBitweenBlackOwlAndWhiteCentipede,
-    MagicDoorIsBitweenBlackToadAndWhiteOwl,
-    MagicDoorIsBitweenBlackToadAndWhiteCentipede,
-    MagicDoorIsBitweenBlackToadAndWhiteBat,
-    MagicDoorIsBitweenBatAndBat,
-    MagicDoorIsBitweenBatAndToad,
-    MagicDoorIsBitweenBatAndCentipede,
-    MagicDoorIsBitweenCentipedeAndOwl,
-    MagicDoorIsBitweenCentipedeAndToad,
-    MagicDoorIsBitweenOwlAndToad,
-    StartSearchHubi,
-    HubiMoved,
-    FindHubi,
-    SnapHubi,
-    Congratulations,
-    HubiIsInBatTile,
-    HubiIsInCentipedeTile,
-    HubiIsInToadTile,
-    HubiIsInOwlTile,
-    HubiIsInBlackBatTile,
-    HubiIsInBlackCentipedeTile,
-    HubiIsInBlackToadTile,
-    HubiIsInBlackOwlTile,
-    HubiIsInWhiteBatTile,
-    HubiIsInWhiteCentipedeTile,
-    HubiIsInWhiteToadTile,
-    HubiIsInWhiteOwlTile,
-    CannotHint,
+export type MessageId = 
+    "OpendMagicDoor" | 
+    "AisleIsFreePassage" | 
+    "AisleIsRabbitWindow_Moved" |
+    "AisleIsRabbitWindow_NoMoved" |
+    "AisleIsMouseHole_Moved" |
+    "AisleIsMouseHole_NoMoved" |
+    "AisleIsWall" |
+    "AisleIsMagicDoor" |
+    "CannotMove" |
+    "MagicDoorIsBitweenBlackBatAndWhiteBat" |
+    "MagicDoorIsBitweenBlackBatAndWhiteToad" |
+    "MagicDoorIsBitweenBlackBatAndWhiteCentipede" |
+    "MagicDoorIsBitweenBlackCentipedeAndWhiteOwl" |
+    "MagicDoorIsBitweenBlackCentipedeAndWhiteToad" |
+    "MagicDoorIsBitweenBlackCentipedeAndWhiteBat" |
+    "MagicDoorIsBitweenBlackOwlAndWhiteToad" |
+    "MagicDoorIsBitweenBlackOwlAndWhiteCentipede" |
+    "MagicDoorIsBitweenBlackToadAndWhiteOwl" |
+    "MagicDoorIsBitweenBlackToadAndWhiteCentipede" |
+    "MagicDoorIsBitweenBlackToadAndWhiteBat" |
+    "MagicDoorIsBitweenBatAndBat" |
+    "MagicDoorIsBitweenBatAndToad" |
+    "MagicDoorIsBitweenBatAndCentipede" |
+    "MagicDoorIsBitweenCentipedeAndOwl" |
+    "MagicDoorIsBitweenCentipedeAndToad" |
+    "MagicDoorIsBitweenOwlAndToad" |
+    "StartSearchHubi" |
+    "HubiMoved" |
+    "FindHubi" |
+    "SnapHubi" |
+    "Congratulations" |
+    "HubiIsInBatTile" |
+    "HubiIsInCentipedeTile" |
+    "HubiIsInToadTile" |
+    "HubiIsInOwlTile" |
+    "HubiIsInBlackBatTile" |
+    "HubiIsInBlackCentipedeTile" |
+    "HubiIsInBlackToadTile" |
+    "HubiIsInBlackOwlTile" |
+    "HubiIsInWhiteBatTile" |
+    "HubiIsInWhiteCentipedeTile" |
+    "HubiIsInWhiteToadTile" |
+    "HubiIsInWhiteOwlTile" |
+    "CannotHint";
+export namespace MessageId{
+    export const OpendMagicDoor:MessageId = "OpendMagicDoor"
+    export const AisleIsFreePassage:MessageId = "AisleIsFreePassage"
+    export const AisleIsRabbitWindow_Moved:MessageId = "AisleIsRabbitWindow_Moved"
+
+    export const AisleIsRabbitWindow_NoMoved:MessageId = "AisleIsRabbitWindow_NoMoved"
+    export const AisleIsMouseHole_Moved:MessageId = "AisleIsMouseHole_Moved"
+    export const AisleIsMouseHole_NoMoved:MessageId = "AisleIsMouseHole_NoMoved"
+    export const AisleIsWall:MessageId = "AisleIsWall"
+    export const AisleIsMagicDoor:MessageId = "AisleIsMagicDoor"
+    export const CannotMove:MessageId = "CannotMove"
+    export const MagicDoorIsBitweenBlackBatAndWhiteBat:MessageId = "MagicDoorIsBitweenBlackBatAndWhiteBat"
+    export const MagicDoorIsBitweenBlackBatAndWhiteToad:MessageId = "MagicDoorIsBitweenBlackBatAndWhiteToad"
+    export const MagicDoorIsBitweenBlackBatAndWhiteCentipede:MessageId = "MagicDoorIsBitweenBlackBatAndWhiteCentipede"
+    export const MagicDoorIsBitweenBlackCentipedeAndWhiteOwl:MessageId = "MagicDoorIsBitweenBlackCentipedeAndWhiteOwl"
+    export const MagicDoorIsBitweenBlackCentipedeAndWhiteToad:MessageId = "MagicDoorIsBitweenBlackCentipedeAndWhiteToad"
+    export const MagicDoorIsBitweenBlackCentipedeAndWhiteBat:MessageId = "MagicDoorIsBitweenBlackCentipedeAndWhiteBat"
+    export const MagicDoorIsBitweenBlackOwlAndWhiteToad:MessageId = "MagicDoorIsBitweenBlackOwlAndWhiteToad"
+    export const MagicDoorIsBitweenBlackOwlAndWhiteCentipede:MessageId = "MagicDoorIsBitweenBlackOwlAndWhiteCentipede"
+    export const MagicDoorIsBitweenBlackToadAndWhiteOwl:MessageId = "MagicDoorIsBitweenBlackToadAndWhiteOwl"
+    export const MagicDoorIsBitweenBlackToadAndWhiteCentipede:MessageId = "MagicDoorIsBitweenBlackToadAndWhiteCentipede"
+    export const MagicDoorIsBitweenBlackToadAndWhiteBat:MessageId = "MagicDoorIsBitweenBlackToadAndWhiteBat"
+    export const MagicDoorIsBitweenBatAndBat:MessageId = "MagicDoorIsBitweenBatAndBat"
+    export const MagicDoorIsBitweenBatAndToad:MessageId = "MagicDoorIsBitweenBatAndToad"
+    export const MagicDoorIsBitweenBatAndCentipede:MessageId = "MagicDoorIsBitweenBatAndCentipede"
+    export const MagicDoorIsBitweenCentipedeAndOwl:MessageId = "MagicDoorIsBitweenCentipedeAndOwl"
+    export const MagicDoorIsBitweenCentipedeAndToad:MessageId = "MagicDoorIsBitweenCentipedeAndToad"
+    export const MagicDoorIsBitweenOwlAndToad:MessageId = "MagicDoorIsBitweenOwlAndToad"
+    export const StartSearchHubi:MessageId = "StartSearchHubi"
+    export const HubiMoved:MessageId = "HubiMoved"
+    export const FindHubi:MessageId = "FindHubi"
+    export const SnapHubi:MessageId = "SnapHubi"
+    export const Congratulations:MessageId = "Congratulations"
+    export const HubiIsInBatTile:MessageId = "HubiIsInBatTile"
+    export const HubiIsInCentipedeTile:MessageId = "HubiIsInCentipedeTile"
+    export const HubiIsInToadTile:MessageId = "HubiIsInToadTile"
+    export const HubiIsInOwlTile:MessageId = "HubiIsInOwlTile"
+    export const HubiIsInBlackBatTile:MessageId = "HubiIsInBlackBatTile"
+    export const HubiIsInBlackCentipedeTile:MessageId = "HubiIsInBlackCentipedeTile"
+    export const HubiIsInBlackToadTile:MessageId = "HubiIsInBlackToadTile"
+    export const HubiIsInBlackOwlTile:MessageId = "HubiIsInBlackOwlTile"
+    export const HubiIsInWhiteBatTile:MessageId = "HubiIsInWhiteBatTile"
+    export const HubiIsInWhiteCentipedeTile:MessageId = "HubiIsInWhiteCentipedeTile"
+    export const HubiIsInWhiteToadTile:MessageId = "HubiIsInWhiteToadTile"
+    export const HubiIsInWhiteOwlTile:MessageId = "HubiIsInWhiteOwlTile"
+    export const CannotHint:MessageId = "CannotHint"
 }
+
+
+
 
 class TurnHistory
 {
@@ -1313,103 +1360,7 @@ function getMagicDoorHintMessage(tiles:Tile[]):MessageId
 
 function getMessage(messageId:MessageId):string
 {
-    switch(messageId)
-    {
-    // case MessageId.Moved:
-    //     return '移動したよ';
-    // case MessageId.MovedShownAisle:
-    //     return '移動したよ、もう一度移動できるよ';
-    case MessageId.OpendMagicDoor:
-        return '魔法の扉が開いた。移動したよ。';
-    case MessageId.AisleIsFreePassage:
-        return '通路だったよ、移動できたよ。';
-    case MessageId.AisleIsRabbitWindow_Moved:
-        return 'ウサギ窓だったよ、移動したよ';
-    case MessageId.AisleIsRabbitWindow_NoMoved:
-        return 'ウサギ窓だったよ、移動できなかった';
-    case MessageId.AisleIsMouseHole_Moved:
-        return 'ネズミあなだったよ、移動したよ';
-    case MessageId.AisleIsMouseHole_NoMoved:
-        return 'ネズミあなだったよ、移動できなかった';
-    case MessageId.AisleIsWall:
-        return 'カベだったよ、移動できなかった';
-    case MessageId.AisleIsMagicDoor:
-        return '魔法の扉だったよ、移動できなかった';
-    case MessageId.CannotMove:
-        return 'そちらにはいけないよ';
-    case MessageId.MagicDoorIsBitweenBlackBatAndWhiteBat:
-        return '魔法の扉は黒いコウモリと白いコウモリの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackBatAndWhiteToad:
-        return '魔法の扉は黒いコウモリと白いカエルの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackBatAndWhiteCentipede:
-        return '魔法の扉は黒いコウモリと白いムカデの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackCentipedeAndWhiteOwl:
-        return '魔法の扉は黒いムカデと白いフクロウの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackCentipedeAndWhiteToad:
-        return '魔法の扉は黒いムカデと白いカエルの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackCentipedeAndWhiteBat:
-        return '魔法の扉は黒いムカデと白いコウモリの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackOwlAndWhiteToad:
-        return '魔法の扉は黒いフクロウと白いカエルの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackOwlAndWhiteCentipede:
-        return '魔法の扉は黒いフクロウと白いムカデの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackToadAndWhiteOwl:
-        return '魔法の扉は黒いカエルと白いフクロウの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackToadAndWhiteCentipede:
-        return '魔法の扉は黒いカエルと白いムカデの間だよ';
-    case MessageId.MagicDoorIsBitweenBlackToadAndWhiteBat:
-        return '魔法の扉は黒いカエルと白いコウモリの間だよ';
-    case MessageId.MagicDoorIsBitweenBatAndBat:
-        return '魔法の扉はコウモリとコウモリの間だよ';
-    case MessageId.MagicDoorIsBitweenBatAndToad:
-        return '魔法の扉はコウモリとカエルの間だよ';
-    case MessageId.MagicDoorIsBitweenBatAndCentipede:
-        return '魔法の扉はコウモリとムカデの間だよ';
-    case MessageId.MagicDoorIsBitweenCentipedeAndOwl:
-        return '魔法の扉はムカデとフクロウの間だよ';
-    case MessageId.MagicDoorIsBitweenCentipedeAndToad:
-        return '魔法の扉はムカデとカエルの間だよ';
-    case MessageId.MagicDoorIsBitweenOwlAndToad:
-        return '魔法の扉はフクロウとカエルの間だよ';
-    case MessageId.StartSearchHubi:
-        return 'やっと僕の世界に来たね。でも見えない僕を捕まえられるかな？';
-    case MessageId.HubiMoved:
-        return '僕は移動しちゃうもんねー。壁だって通れるんだぞ。';
-    case MessageId.FindHubi:
-        return 'あれ！？見つかった？でも一人じゃ僕は捕まえられないよ。';
-    case MessageId.SnapHubi:
-        return 'あれれー、つかまっちゃったー';
-    case MessageId.Congratulations:
-        return 'おめでとう！フビを捕まえたよ。あなたたちの勝ちだ。';
-    case MessageId.HubiIsInBatTile:
-        return 'フビはコウモリの部屋にいるよ';
-    case MessageId.HubiIsInCentipedeTile:
-        return 'フビはムカデの部屋にいるよ';
-    case MessageId.HubiIsInToadTile:
-        return 'フビはカエルの部屋にいるよ';
-    case MessageId.HubiIsInOwlTile:
-        return 'フビはフクロウの部屋にいるよ';
-    case MessageId.HubiIsInBlackBatTile:
-        return 'フビは黒いコウモリの部屋にいるよ';
-    case MessageId.HubiIsInBlackCentipedeTile:
-        return 'フビは黒いムカデの部屋にいるよ';
-    case MessageId.HubiIsInBlackToadTile:
-        return 'フビは黒いカエルの部屋にいるよ';
-    case MessageId.HubiIsInBlackOwlTile:
-        return 'フビは黒いフクロウの部屋にいるよ';
-    case MessageId.HubiIsInWhiteBatTile:
-        return 'フビは白いコウモリの部屋にいるよ';
-    case MessageId.HubiIsInWhiteCentipedeTile:
-        return 'フビは白いムカデの部屋にいるよ';
-    case MessageId.HubiIsInWhiteToadTile:
-        return 'フビは白いカエルの部屋にいるよ';
-    case MessageId.HubiIsInWhiteOwlTile:
-        return 'フビは白いフクロウの部屋にいるよ';
-    case MessageId.CannotHint:
-        return '教えられることはなにもないよ';
-    default:
-        return '';
-    }
+    return MyIntlLib.format("Messages_" + messageId);
 }
 
 function getAisleTypeMessageId(aisleType:AisleTypes, canPass:boolean):MessageId
