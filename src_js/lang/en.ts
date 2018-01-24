@@ -10,6 +10,10 @@ const en_US = {
     Common_DifficultyCustom: "Custom",
     Common_Next:        "Next",
     Common_Previous:    "Back",
+    Common_Ok:          "OK",
+    Common_Cancel:      "Cancel",
+    Common_Password:    "Password",
+    Common_Settings:    "Settings",
     SelectPlayers_PlayerIsLessThanTow:    "Player is less than two.",
     SelectPlayers_CannotSelectMouseOnly:  "Can not select moues only.",
     SelectPlayers_CannotSelectRabbitOnly: "Can not select rabbit only.",
@@ -30,5 +34,10 @@ const en_US = {
     CustomizeDifficulty_firstHubiMoveTiming:   "First Hubi move timing.",
     CustomizeDifficulty_afterFirstHubiMoveTiming:  "After first fubi move timing",
     CustomizeDifficulty_detailHintPercent:  "deteil  hint percent",
+    AppFrame_ContinueGame:  "Continue Game",
+    AppFrame_BackToStart:   "Back to Start",
+    AppFrame_Settings:      "Settings",
+    AppFrame_DebugMode:     "Developper Mode",
+    AppFrame_PasswordForDebug:     "Developper Mode",
 }   
 export default en_US;

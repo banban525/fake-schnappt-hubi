@@ -16,6 +16,7 @@ import SelectField from 'material-ui/SelectField';
 import TextField from 'material-ui/TextField';
 
 import MyIntlLib from './MyIntlLib';
+import MyIntl from './MyIntl';
 
 import ja_JP from './lang/ja';
 import en_US from './lang/en';
@@ -76,21 +77,21 @@ class AppFrame extends Component<AppFrameProps> {
             open={this.props.drawOpened} 
             docked={false}
             onRequestChange={(open) => this.props.actions.changeDrawerState(open)}>
-            <MenuItem onClick={()=>{this.props.actions.changeDrawerState(false)}}>Back to Game</MenuItem>
-            <MenuItem onClick={()=>{this.props.actions.backToStart()}}>Back to start</MenuItem>
-            <MenuItem onClick={()=>{this.props.actions.openSettings()}}>Settings</MenuItem>
-            <MenuItem onClick={()=>{this.props.actions.toggleDebugMode()}} checked={this.props.debugMode}>Debug Mode</MenuItem>
+            <MenuItem onClick={()=>{this.props.actions.changeDrawerState(false)}}><MyIntl id="AppFrame_ContinueGame"/></MenuItem>
+            <MenuItem onClick={()=>{this.props.actions.backToStart()}}><MyIntl id="AppFrame_BackToStart"/></MenuItem>
+            <MenuItem onClick={()=>{this.props.actions.openSettings()}}><MyIntl id="AppFrame_Settings"/></MenuItem>
+            <MenuItem onClick={()=>{this.props.actions.toggleDebugMode()}} checked={this.props.debugMode}><MyIntl id="AppFrame_DebugMode"/></MenuItem>
           </Drawer>
           <Dialog
-            title="Settings"
+            title={MyIntlLib.format("Common_Settings")}
             actions={[(
               <FlatButton 
-                label="Cancel" 
+                label={MyIntlLib.format("Common_Cancel")}
                 primary={false}
                 onClick={()=>{this.props.actions.settingsCancel()}}/>
               ),(
               <FlatButton 
-                label="OK" 
+                label={MyIntlLib.format("Common_Ok")}
                 primary={true}
                 onClick={()=>{this.props.actions.settingsOk()}}/>
                 )]}
@@ -108,25 +109,25 @@ class AppFrame extends Component<AppFrameProps> {
           </SelectField>
         </Dialog>
         <Dialog
-            title="Password"
+            title={MyIntlLib.format("Common_Password")}
             actions={[(
               <FlatButton 
-                label="Cancel" 
+                label={MyIntlLib.format("Common_Cancel")}
                 primary={false}
                 onClick={()=>{this.props.actions.passwordDialogCancel()}}/>
               ),(
               <FlatButton 
-                label="OK" 
+                label={MyIntlLib.format("Common_Ok")}
                 primary={true}
                 onClick={()=>{this.props.actions.passwordDialogOk()}}/>
                 )]}
             modal={true}
             open={this.props.passwordDialogOpened}
           >
-          <p>Password for Debug</p>
+          <p><MyIntl id="AppFrame_PasswordForDebug"/></p>
           <TextField
-            hintText="Password"
-            floatingLabelText="Password"
+            hintText={MyIntlLib.format("Common_Password")}
+            floatingLabelText={MyIntlLib.format("Common_Password")}
             type="password"
             value={this.props.passwordForDebug}
             onChange={(e: React.FormEvent<{}>, newValue: string)=>{this.props.actions.changePasswordForDebug(newValue)}}

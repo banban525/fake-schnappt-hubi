@@ -10,6 +10,10 @@ const ja = {
     Common_DifficultyCustom: "カスタム",
     Common_Next:        "つぎへ",
     Common_Previous:    "もどる",
+    Common_Ok:          "OK",
+    Common_Cancel:      "キャンセル",
+    Common_Password:    "パスワード",
+    Common_Settings:    "せってい",
     SelectPlayers_PlayerIsLessThanTow:    "ふたりいないとゲームできないよ",
     SelectPlayers_CannotSelectMouseOnly:  "ネズミだけじゃゲームできないよ",
     SelectPlayers_CannotSelectRabbitOnly: "うさぎだけじゃゲームできないよ",
@@ -30,5 +34,10 @@ const ja = {
     CustomizeDifficulty_firstHubiMoveTiming:   "はじめにフビがいどうするじかん",
     CustomizeDifficulty_afterFirstHubiMoveTiming:  "2かいめいこうにフビがいどうするじかん",
     CustomizeDifficulty_detailHintPercent:  "くわしいヒントをだすわりあい",
+    AppFrame_ContinueGame:  "ゲームをつづける",
+    AppFrame_BackToStart:   "スタートにもどる",
+    AppFrame_Settings:      "せってい",
+    AppFrame_DebugMode:     "かいはつしゃもーど",
+    AppFrame_PasswordForDebug:     "かいはつしゃもーど",
 }
 export default ja;
